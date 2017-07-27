@@ -74,4 +74,4 @@ let sweep (game:Game) (x:int) (y:int) =
     
     match cell.IsMine with
     | true -> { game with State = GameState.Dead; Cells = newCells }
-    | false -> { game with Cells = newCells }
+    | false -> { game with State = GameState.Playing; Cells = newCells }
