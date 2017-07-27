@@ -1,6 +1,4 @@
-﻿// Learn more about F# at http://fsharp.org
-// See the 'F# Tutorial' project for more help.
-open Minesweeper
+﻿open Minesweeper
 
 let getCellChar (game:Game) (cell:Cell) =
     match cell.State with
@@ -32,4 +30,4 @@ let mutable game = createEasyGame (new System.Random())
 let main argv = 
     printGame game
     let e = System.Console.ReadLine()
-    0 // return an integer exit code
+    0
