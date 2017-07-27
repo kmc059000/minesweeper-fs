@@ -9,15 +9,35 @@ let getCellChar (game:Game) (cell:Cell) =
         | i -> i.ToString()
     | Flagged -> "?"
 
-let getRowText (game:Game) (row:Cell[]) = 
-    row |> Array.map (getCellChar game) |> String.concat ""
+let getRowText (game:Game) (idx:int) (row:Cell[]) = 
+    let rowText = row |> Array.map (getCellChar game) |> String.concat "" 
+    sprintf "%02i %s" (idx + 1) rowText
+
+let inc x = x + 1
+let getHeader (game:Game) (leftPadding:string) = 
+    let width = game.Width
+    let maxChars = width.ToString().Length
+    let indexes = 
+        [0..(width - 1)]
+        |> Seq.map inc
+        |> Seq.map (fun x -> x.ToString().PadLeft(maxChars, '0'))
+        |> Array.ofSeq
+    [0..(maxChars - 1)]
+        |> List.map (fun i -> 
+            indexes 
+            |> Array.map (fun x -> x.[i].ToString())
+            |> String.concat "")
+        |> List.map (fun s -> leftPadding + s)
+        |> String.concat "\r\n"
+
 
 let printGame (game:Game) =
     let rows = 
         game.Cells
         |> Array.chunkBySize game.Width
-        |> Array.map (getRowText game)
+        |> Array.mapi (getRowText game)
     printfn "Game:"
+    printfn "%s" (getHeader game "   ")
     for r in rows do printfn "%s" r
     printfn ""
     printfn ""
