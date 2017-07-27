@@ -9,8 +9,6 @@ let getCellChar (game:Game) (cell:Cell) =
         | i -> i.ToString()
     | Flagged -> "?"
 
-
-
 let getRowText (game:Game) (row:Cell[]) = 
     row |> Array.map (getCellChar game) |> String.concat ""
 
@@ -24,10 +22,48 @@ let printGame (game:Game) =
     printfn ""
     printfn ""
 
-let mutable game = createEasyGame (new System.Random())
+let processMove (game:Game) =
+    printGame game
+    
+    match game.State with
+    | Start -> printfn "Choose your first move:"
+    | Playing -> printfn "Choose your next move:"
+    | Win -> printfn "You won!"
+    | Dead -> printfn "You have exploded! :("
+    | Quit -> printfn "Quitter!"
+
+    let moveArgs = System.Console.ReadLine().Split("".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries)
+    let newState = 
+        match moveArgs |> Array.tryHead with
+        | None -> 
+            printfn "Unknown command"
+            game
+        | Some c -> 
+            match c with 
+            | "sweep" -> game
+            | "flag" -> game
+            | "quit" -> {game with State = GameState.Quit}
+            | "help" -> 
+                printfn "Available commands:"
+                printfn "sweep x y"
+                printfn "flag x y"
+                printfn "quit"
+                game
+            | _ -> 
+                printfn "Unknown command"
+                game
+    printfn ""
+    printfn ""
+    newState
+
+let gameloop (rand:System.Random) =
+    let mutable game = createEasyGame (new System.Random())
+    while game.State <> GameState.Dead && game.State <> GameState.Quit do
+        game <- processMove game
+    
+    
 
 [<EntryPoint>]
 let main argv = 
-    printGame game
-    let e = System.Console.ReadLine()
+    gameloop (new System.Random())
     0
