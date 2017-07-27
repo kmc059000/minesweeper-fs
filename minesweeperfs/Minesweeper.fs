@@ -53,6 +53,7 @@ let createGame (width:int) (height:int) (mineCount:int) (rand:System.Random) =
         SecondaryMineLocations = secondaryMineLocation
     }
 
+let createImpossibleSimpleGame<'a> = createGame 1 1 1
 let createEasyGame<'a> = createGame 10 10 10
 let createMediumGame<'a> = createGame 20 20 80
 let createHardGame<'a> = createGame 30 30 400
