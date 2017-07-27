@@ -20,9 +20,25 @@ type Game = {
     SecondaryMineLocations: Set<int>;
 };
 
+let getOffsetIndex (cell:Cell) (offset:int*int) =
+    let (dx, dy) = offset
+    (cell.X + dx, cell.Y + dy)
+
+let isValidCell w h (xy:int*int) =
+    let (x,y) = xy
+    if x >= 0 && x < w && y >= 0 && y < h then true else false
+
 let getSurroundingCount (game:Game) (cell:Cell) =
-    //todo find number of cells around this cell which has a mine
-    5
+    [(-1, -1);   (0, -1);  (1, -1);
+     (-1,  0); (*(0, 0);*) (1, 0);
+     (-1,  1);   (0, 1);   (1, 1);]
+    |> Seq.map (getOffsetIndex cell)
+    |> Seq.map (fun x -> x)
+    |> Seq.filter (fun x -> (isValidCell game.Width game.Height) x)
+    |> Seq.map (fun (x,y) -> game.Cells.[x + y * game.Width])
+    |> Seq.filter (fun c -> c.IsMine)
+    |> Seq.length
+
 
 let createGame (width:int) (height:int) (mineCount:int) (rand:System.Random) =
     let createCell (primaryMineLocations:Set<int>) index = {
@@ -58,6 +74,7 @@ let createGame (width:int) (height:int) (mineCount:int) (rand:System.Random) =
     }
 
 let createImpossibleSimpleGame<'a> = createGame 1 1 1
+let createSweepGame<'a> = createGame 3 3 8
 let createEasyGame<'a> = createGame 10 10 10
 let createMediumGame<'a> = createGame 20 20 80
 let createHardGame<'a> = createGame 30 30 400
