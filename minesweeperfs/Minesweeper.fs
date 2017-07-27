@@ -6,6 +6,8 @@ type CellState = Hidden | Exposed | Flagged
 type Cell = {
     State: CellState;
     Index: int;
+    X:int;
+    Y:int;
     IsMine: bool;
 };
 
@@ -26,7 +28,9 @@ let createGame (width:int) (height:int) (mineCount:int) (rand:System.Random) =
     let createCell (primaryMineLocations:Set<int>) index = {
         State = Hidden;
         Index = index;
-        IsMine = primaryMineLocations.Contains index
+        X = index % width;
+        Y = index / width;
+        IsMine = primaryMineLocations.Contains index;
     }
 
     let maxIndex = width * height
