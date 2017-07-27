@@ -59,3 +59,19 @@ let createMediumGame<'a> = createGame 20 20 80
 let createHardGame<'a> = createGame 30 30 400
 
 
+let sweep (game:Game) (x:int) (y:int) = 
+    let index = x + (y * game.Width)
+    let cell = game.Cells.[index]
+    
+    let processCell cell' =
+        match cell' = cell with
+        | true -> { cell' with State = Exposed}
+        | false -> cell'
+
+    let newCells = 
+        game.Cells
+        |> Array.map processCell
+    
+    match cell.IsMine with
+    | true -> { game with State = GameState.Dead; Cells = newCells }
+    | false -> { game with Cells = newCells }

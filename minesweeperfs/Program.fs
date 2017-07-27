@@ -66,7 +66,7 @@ let processMove (game:Game) =
                 game
             | Some c -> 
                 match moveArgs with 
-                | "sweep"::x::y::_ -> game
+                | "sweep"::x::y::_ -> sweep game ((int x) - 1) ((int y) - 1)
                 | "flag"::x::y::_ -> game
                 | "quit"::_ -> { game with State = GameState.Quit }
                 | "help"::_ -> 
