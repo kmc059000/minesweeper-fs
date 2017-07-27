@@ -45,7 +45,7 @@ let createGame (width:int) (height:int) (mineCount:int) (rand:System.Random) =
     let secondaryMineLocation = allMineLocations |> Seq.skip 1 |> Seq.take (mineCount) |> Set.ofSeq
     
     let cells = 
-        [1..(width * height)] 
+        [0..((width * height) - 1)] 
         |> Seq.map (createCell primaryMineLocations)
         |> Seq.toArray
     {
