@@ -4,8 +4,9 @@ let debug = true
 
 let getCellChar (game:Game) (cell:Cell) =
     match cell.State with
-    | Hidden -> match debug with
-        | true -> if cell.IsMine then "*" else " "
+    | Hidden -> 
+        match debug with
+        | true -> if cell.IsMine then "*" else "H"
         | false -> "·"
     | Exposed -> 
         match getSurroundingCount game cell with
