@@ -1,8 +1,12 @@
 ﻿open Minesweeper
 
+let debug = true
+
 let getCellChar (game:Game) (cell:Cell) =
     match cell.State with
-    | Hidden -> "·"
+    | Hidden -> match debug with
+        | true -> if cell.IsMine then "*" else " "
+        | false -> "·"
     | Exposed -> 
         match getSurroundingCount game cell with
         | 0 -> " "
