@@ -1,6 +1,6 @@
 ﻿module Minesweeper
 
-type GameState = Start | Playing | Win | Dead | Quit
+type GameState = Start | Playing | Win | Dead | Quit | Exit
 
 type CellState = Hidden | Exposed | Flagged
 type Cell = {

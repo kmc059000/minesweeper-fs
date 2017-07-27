@@ -51,34 +51,40 @@ let processMove (game:Game) =
     | Win -> printfn "You won!"
     | Dead -> printfn "You have exploded! :("
     | Quit -> printfn "Quitter!"
+    | Exit -> ()
 
-    let moveArgs = System.Console.ReadLine().Split("".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries)
-    let newState = 
-        match moveArgs |> Array.tryHead with
-        | None -> 
-            printfn "Unknown command"
-            game
-        | Some c -> 
-            match c with 
-            | "sweep" -> game
-            | "flag" -> game
-            | "quit" -> {game with State = GameState.Quit}
-            | "help" -> 
-                printfn "Available commands:"
-                printfn "sweep x y"
-                printfn "flag x y"
-                printfn "quit"
-                game
-            | _ -> 
+    if game.State = Dead
+    then
+        let wait = System.Console.ReadLine()
+        { game with State = Exit }
+    else
+        let moveArgs = System.Console.ReadLine().Split("".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries) |> List.ofArray
+        let newState = 
+            match moveArgs |> List.tryHead with
+            | None -> 
                 printfn "Unknown command"
                 game
-    printfn ""
-    printfn ""
-    newState
+            | Some c -> 
+                match moveArgs with 
+                | "sweep"::x::y::_ -> game
+                | "flag"::x::y::_ -> game
+                | "quit"::_ -> { game with State = GameState.Quit }
+                | "help"::_ -> 
+                    printfn "Available commands:"
+                    printfn "sweep x y"
+                    printfn "flag x y"
+                    printfn "quit"
+                    game
+                | _ -> 
+                    printfn "Unknown command"
+                    game
+        printfn ""
+        printfn ""
+        newState
 
 let gameloop (rand:System.Random) =
     let mutable game = createEasyGame (new System.Random())
-    while game.State <> GameState.Dead && game.State <> GameState.Quit do
+    while game.State <> GameState.Exit && game.State <> GameState.Quit do
         game <- processMove game
     
     
