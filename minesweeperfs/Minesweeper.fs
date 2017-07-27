@@ -32,7 +32,7 @@ let createGame (width:int) (height:int) (mineCount:int) (rand:System.Random) =
     let maxIndex = width * height
     
     let allMineLocations =
-        Seq.initInfinite (fun _ -> rand.Next(maxIndex))
+        Seq.initInfinite (fun _ -> rand.Next(maxIndex + 1))
         |> Seq.distinct
         |> Seq.take (mineCount + 1)
         |> List.ofSeq
