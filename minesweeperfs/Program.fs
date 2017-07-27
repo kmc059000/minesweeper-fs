@@ -1,6 +1,6 @@
 ﻿open Minesweeper
 
-let debug = true
+let debug = false
 
 let getCellChar (game:Game) (cell:Cell) =
     match cell.State with
@@ -71,8 +71,9 @@ let processMove (game:Game) =
                 game
             | Some c -> 
                 match moveArgs with 
+                | "flag"::x::y::_ -> flag game ((int x) - 1) ((int y) - 1)
                 | "sweep"::x::y::_ -> sweep game ((int x) - 1) ((int y) - 1)
-                | "flag"::x::y::_ -> game
+                | x::y::_ -> sweep game ((int x) - 1) ((int y) - 1)
                 | "quit"::_ -> { game with State = GameState.Quit }
                 | "help"::_ -> 
                     printfn "Available commands:"
