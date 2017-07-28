@@ -28,12 +28,16 @@ let testLoss index (game:Game) =
     | true -> { game with State = GameState.Dead; }
     | false -> game
 
+let sweepCell index game =
+    game
+    |> setGameCellState index Exposed
+    //todo expose contiguous blocks of cells with 0 surrounding mines
 
 let sweep (game:Game) (x:int) (y:int) = 
     let index = x + (y * game.Width)
     game 
         |> tryPlaceMines index
-        |> setGameCellState index Exposed
+        |> sweepCell index
         |> testWin
         |> testLoss index
 
