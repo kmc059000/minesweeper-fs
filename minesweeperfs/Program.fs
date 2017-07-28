@@ -1,7 +1,8 @@
 ﻿module Program
 
 open Minesweeper
-open Commands
+open Commands.Sweep
+open Commands.Flag
 
 let debug = false
 

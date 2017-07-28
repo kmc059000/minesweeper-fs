@@ -113,3 +113,20 @@ let tryPlaceMines lastSelectedIndex (game:Game) =
     match game.State with
     | GameState.Start -> placeMines game lastSelectedIndex
     | _ -> game
+
+let isWin (cells:Cell[]) = 
+    cells
+    |> Array.exists (fun x -> not x.IsMine && x.State <> CellState.Exposed)
+    |> not
+
+let testWin (game:Game) =
+    let isWin = isWin game.Cells
+    match isWin with
+    | true -> { game with State = Win }
+    | false -> game
+
+let testLoss index (game:Game) = 
+    let cell = game.Cells.[index]
+    match cell.IsMine with
+    | true -> { game with State = GameState.Dead; }
+    | false -> game
