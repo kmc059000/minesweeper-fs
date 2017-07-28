@@ -1,4 +1,4 @@
-﻿module Minesweeper.Commands
+﻿module Commands
 
 open Minesweeper
 

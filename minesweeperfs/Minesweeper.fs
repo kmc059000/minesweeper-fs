@@ -33,7 +33,6 @@ let getSurroundingCount (game:Game) (cell:Cell) =
      (-1,  0); (*(0, 0);*) (1, 0);
      (-1,  1);   (0, 1);   (1, 1);]
     |> Seq.map (getOffsetIndex cell)
-    |> Seq.map (fun x -> x)
     |> Seq.filter (fun x -> (isValidCell game.Width game.Height) x)
     |> Seq.map (fun (x,y) -> game.Cells.[x + y * game.Width])
     |> Seq.filter (fun c -> c.IsMine)
