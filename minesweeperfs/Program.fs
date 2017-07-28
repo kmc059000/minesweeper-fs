@@ -21,7 +21,8 @@ let getCellChar (game:Game) (cell:Cell) =
 
 let getRowText (game:Game) (idx:int) (row:Cell[]) = 
     let rowText = row |> Array.map (getCellChar game) |> String.concat "" 
-    sprintf "%02i %s%02i" (idx + 1) rowText (idx + 1)
+    let rowNum = (idx + 1).ToString().PadLeft(2,' ')
+    sprintf "%s║%s║%s" rowNum (rowText.Trim()) rowNum
 
 let inc x = x + 1
 let getHeader (game:Game) (leftPadding:string) = 
@@ -30,14 +31,14 @@ let getHeader (game:Game) (leftPadding:string) =
     let indexes = 
         [0..(width - 1)]
         |> Seq.map inc
-        |> Seq.map (fun x -> x.ToString().PadLeft(maxChars, ' '))
+        |> Seq.map (fun x -> "═" + x.ToString().PadLeft(maxChars, ' ') + "═")
         |> Array.ofSeq
-    [0..(maxChars - 1)]
+    [0..(maxChars + 1)]
         |> List.map (fun i -> 
             indexes 
             |> Array.map (fun x -> x.[i].ToString())
-            |> String.concat " ")
-        |> List.map (fun s -> leftPadding + s)
+            |> String.concat (if i = 0 || i = maxChars + 1 then "═" else " "))
+        |> List.map (fun s -> leftPadding + "║" + s + "║")
         |> String.concat "\r\n"
 
 
@@ -47,7 +48,7 @@ let getGameDisplay (game:Game) =
         |> Array.chunkBySize game.Width
         |> Array.mapi (getRowText game)
         |> String.concat "\r\n"
-    let header = (getHeader game "   ")
+    let header = (getHeader game "  ")
     let stateMessage = 
         match game.State with
         | Start -> "Choose your first move:"
