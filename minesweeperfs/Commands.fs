@@ -28,16 +28,37 @@ let testLoss index (game:Game) =
     | true -> { game with State = GameState.Dead; }
     | false -> game
 
-let sweepCell index game =
-    game
-    |> setGameCellState index Exposed
-    //todo expose contiguous blocks of cells with 0 surrounding mines
+let getSurroundingCellsToSweep index game =
+    let cell = game.Cells.[index]
+    match cell.State with
+    | Hidden-> 
+        getValidSurroundingIndexes game.Width game.Height cell
+            |> Seq.map (getCell game)
+            |> Seq.filter (fun x -> x.IsMine = false)
+            |> Seq.map (fun x -> x.Coords.Index)
+            |> List.ofSeq
+    | _ -> []
+        
+
+let rec sweepCells indexes game =
+    match indexes with 
+    | [] -> game
+    | x::xs ->
+        let cell = game.Cells.[x]
+        let surrounding =
+            match cell.SurroundingCount with
+            | Some 0 -> getSurroundingCellsToSweep x game
+            | None
+            | Some _ -> []
+        let newGame = game |> setGameCellState x Exposed
+        sweepCells (xs @ surrounding) newGame
+        
 
 let sweep (game:Game) (x:int) (y:int) = 
     let index = x + (y * game.Width)
     game 
         |> tryPlaceMines index
-        |> sweepCell index
+        |> sweepCells [index]
         |> testWin
         |> testLoss index
 

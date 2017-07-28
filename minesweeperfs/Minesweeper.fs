@@ -41,10 +41,16 @@ let getIndexOfOffset (cell:Cell) gameWidth (offset:int*int) =
 let isValidCell w h coords =
     if coords.X >= 0 && coords.X < w && coords.Y >= 0 && coords.Y < h then true else false
 
-let getSurroundingCount (mineLocations:Set<int>) gameWidth gameHeight (cell:Cell) =
+let getCell game coords =
+    game.Cells.[coords.Index]
+
+let getValidSurroundingIndexes gameWidth gameHeight (cell:Cell) =
     surroundingOffsets
     |> Seq.map (getIndexOfOffset cell gameWidth)
     |> Seq.filter (isValidCell gameWidth gameHeight)
+
+let getSurroundingCount (mineLocations:Set<int>) gameWidth gameHeight (cell:Cell) =
+    getValidSurroundingIndexes gameWidth gameHeight cell
     |> Seq.filter (fun coords -> Set.contains coords.Index mineLocations)
     |> Seq.length
 

@@ -3,7 +3,7 @@
 open Minesweeper
 open Commands
 
-let debug = true
+let debug = false
 
 let getCellChar (game:Game) (cell:Cell) =
     match cell.State with
