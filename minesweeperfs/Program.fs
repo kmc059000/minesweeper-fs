@@ -4,7 +4,7 @@ open Minesweeper
 open Commands.Sweep
 open Commands.Flag
 
-let debug = false
+let debug = true
 
 let getCellChar (game:Game) (cell:Cell) =
     match cell.State with
@@ -77,11 +77,11 @@ let processMove (game:Game) =
                 game
             | Some c -> 
                 match moveArgs with 
-                | "flag"::x::y::_ -> flag game ((int x) - 1) ((int y) - 1)
-                | "sweep"::x::y::_ -> sweep game ((int x) - 1) ((int y) - 1)
-                | x::y::_ -> sweep game ((int x) - 1) ((int y) - 1)
-                | "quit"::_ -> { game with State = GameState.Quit }
-                | "help"::_ -> 
+                | ["flag"; x; y] -> flag game ((int x) - 1) ((int y) - 1)
+                | ["sweep"; x; y] -> sweep game ((int x) - 1) ((int y) - 1)
+                | [x; y] -> sweep game ((int x) - 1) ((int y) - 1)
+                | ["q"] | ["quit"] -> { game with State = GameState.Quit }
+                | ["help"] -> 
                     printfn "Available commands:"
                     printfn "sweep x y"
                     printfn "flag x y"
