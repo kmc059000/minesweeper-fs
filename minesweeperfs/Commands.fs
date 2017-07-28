@@ -51,7 +51,7 @@ let rec sweepCells indexes game =
             | None
             | Some _ -> []
         let newGame = game |> setGameCellState x Exposed
-        sweepCells (xs @ surrounding) newGame
+        newGame |> sweepCells surrounding |> sweepCells xs
         
 
 let sweep (game:Game) (x:int) (y:int) = 
