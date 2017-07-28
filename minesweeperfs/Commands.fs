@@ -2,8 +2,8 @@
 
 open Minesweeper
 
-let setCellState (selectedCell:Cell) state (cell:Cell) = 
-    match cell = selectedCell with
+let setCellState index state (cell:Cell) = 
+    match cell.Coords.Index = index with
         | true -> { cell with State = state}
         | false -> cell
 
@@ -12,8 +12,8 @@ let isWin (cells:Cell[]) =
     |> Array.exists (fun x -> not x.IsMine && x.State <> CellState.Exposed)
     |> not
 
-let setGameCellState selectedCell state (game:Game) =
-    let newCells = game.Cells |> Array.map (setCellState selectedCell state)
+let setGameCellState index state (game:Game) =
+    let newCells = game.Cells |> Array.map (setCellState index state)
     { game with Cells = newCells}
 
 let testWin (game:Game) =
@@ -22,22 +22,21 @@ let testWin (game:Game) =
     | true -> { game with State = Win }
     | false -> game
 
-let testLoss selectedCell (game:Game) = 
-    match selectedCell.IsMine with
+let testLoss index (game:Game) = 
+    let cell = game.Cells.[index]
+    match cell.IsMine with
     | true -> { game with State = GameState.Dead; }
     | false -> game
 
 
 let sweep (game:Game) (x:int) (y:int) = 
     let index = x + (y * game.Width)
-    let selectedCell = game.Cells.[index]
     game 
-        |> setGameCellState selectedCell Exposed
-        |> tryPlaceMines selectedCell
+        |> tryPlaceMines index
+        |> setGameCellState index Exposed
         |> testWin
-        |> testLoss selectedCell
+        |> testLoss index
 
 let flag (game:Game) (x:int) (y:int) = 
     let index = x + (y * game.Width)
-    let cell = game.Cells.[index]
-    game |> setGameCellState cell Flagged
+    game |> setGameCellState index Flagged

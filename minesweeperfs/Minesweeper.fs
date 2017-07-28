@@ -85,14 +85,14 @@ let tryPlaceMine mineLocations cell =
 let setSurroundingCount game mineLocations cell =
     { cell with SurroundingCount = Some (getSurroundingCount mineLocations game.Width game.Height cell) }
 
-let placeMines (game:Game) (firstSweepCell:Cell) = 
+let placeMines (game:Game) lastSelectedIndex = 
     let maxIndex = game.Width * game.Height
     
     let mineLocations =
         Seq.initInfinite  (fun i -> game.Randoms.[i % game.Randoms.Length] % (maxIndex + 1))
         |> Seq.distinct
         //omit the first cell
-        |> Seq.filter (fun c -> c <> firstSweepCell.Coords.Index)
+        |> Seq.filter (fun c -> c <> lastSelectedIndex)
         |> Seq.take game.MineCount
         |> Set.ofSeq
 
@@ -103,7 +103,7 @@ let placeMines (game:Game) (firstSweepCell:Cell) =
        
     { game with Cells = newCells; MineLocations = Some mineLocations; State = Playing }
 
-let tryPlaceMines (lastCell:Cell) (game:Game) =
+let tryPlaceMines lastSelectedIndex (game:Game) =
     match game.State with
-    | GameState.Start -> placeMines game lastCell
+    | GameState.Start -> placeMines game lastSelectedIndex
     | _ -> game
