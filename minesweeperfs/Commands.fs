@@ -39,7 +39,7 @@ let getSurroundingCellsToSweep index game =
             |> List.ofSeq
     | _ -> []
         
-
+//this will auto-sweep the surrounding cells if the sweeped cell has 0 surrounding mines.
 let rec sweepCells indexes game =
     match indexes with 
     | [] -> game
