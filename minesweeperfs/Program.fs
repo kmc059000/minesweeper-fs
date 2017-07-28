@@ -10,7 +10,7 @@ let getCellChar (game:Game) (cell:Cell) =
     match cell.State with
     | Hidden -> 
         match debug with
-        | true -> if cell.IsMine then "*" else "H"
+        | true -> if cell.IsMine then "* " else "H "
         | false -> "· "
     | Exposed -> 
         match cell.SurroundingCount with
