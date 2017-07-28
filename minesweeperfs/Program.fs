@@ -4,7 +4,7 @@ open Minesweeper
 open Commands.Sweep
 open Commands.Flag
 
-let debug = true
+let debug = false
 
 let getCellChar (game:Game) (cell:Cell) =
     match cell.State with
@@ -41,32 +41,31 @@ let getHeader (game:Game) (leftPadding:string) =
         |> String.concat "\r\n"
 
 
-let printGame (game:Game) =
+let getGameDisplay (game:Game) =
     let rows = 
         game.Cells
         |> Array.chunkBySize game.Width
         |> Array.mapi (getRowText game)
-    printfn "Game:"
-    printfn "%s" (getHeader game "   ")
-    for r in rows do printfn "%s" r
-    printfn "%s" (getHeader game "   ")
-    printfn ""
-    printfn ""
+        |> String.concat "\r\n"
+    let header = (getHeader game "   ")
+    let stateMessage = 
+        match game.State with
+        | Start -> "Choose your first move:"
+        | Playing -> "Choose your next move:"
+        | Win -> "You won!"
+        | Dead -> "You have exploded! :("
+        | Quit -> "Quitter!"
+        | Exit -> ""
+
+    sprintf "Game: \r\n%s \r\n%s \r\n%s \r\n\r\n%s" header rows header stateMessage
+
+    
 
 let processMove (game:Game) =
-    printGame game
-    
-    match game.State with
-    | Start -> printfn "Choose your first move:"
-    | Playing -> printfn "Choose your next move:"
-    | Win -> printfn "You won!"
-    | Dead -> printfn "You have exploded! :("
-    | Quit -> printfn "Quitter!"
-    | Exit -> ()
+    printfn "%s" (getGameDisplay game)
 
     if game.State = Dead
     then
-        let wait = System.Console.ReadLine()
         { game with State = Exit }
     else
         let moveArgs = System.Console.ReadLine().Split("".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries) |> List.ofArray
