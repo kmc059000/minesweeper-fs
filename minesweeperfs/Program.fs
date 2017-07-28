@@ -97,6 +97,7 @@ let gameloop randomNumbers =
     let mutable game = createEasyGame randomNumbers
     while game.State <> GameState.Exit && game.State <> GameState.Quit do
         game <- processMove game
+    game
     
     
 
@@ -104,5 +105,8 @@ let gameloop randomNumbers =
 let main argv =
     let rand = new System.Random()
     let randomNumbers = [0..1000] |> List.map (fun _ -> rand.Next()) |> Array.ofList
-    gameloop randomNumbers
+    let game = gameloop randomNumbers
+    match game.State with
+    | Dead -> System.Console.ReadLine() |> ignore
+    | _ -> ()
     0
