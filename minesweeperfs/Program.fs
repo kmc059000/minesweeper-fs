@@ -1,4 +1,7 @@
-﻿open Minesweeper
+﻿module Program
+
+open Minesweeper
+open Commands
 
 let debug = false
 
