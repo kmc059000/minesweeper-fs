@@ -40,15 +40,4 @@ let sweep (game:Game) (x:int) (y:int) =
 let flag (game:Game) (x:int) (y:int) = 
     let index = x + (y * game.Width)
     let cell = game.Cells.[index]
-    
-    //todo use setGameCellState defined above
-    let processCell cell' =
-        match cell' = cell with
-        | true -> { cell' with State = Flagged}
-        | false -> cell'
-
-    let newCells = 
-        game.Cells
-        |> Array.map processCell
-    
-    { game with State = GameState.Playing; Cells = newCells }
+    game |> setGameCellState cell Flagged
