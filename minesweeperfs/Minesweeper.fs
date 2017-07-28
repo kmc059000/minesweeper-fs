@@ -2,12 +2,15 @@
 
 type GameState = Start | Playing | Win | Dead | Quit | Exit
 
+type CellCoords = {
+    X: int;
+    Y: int;
+    Index: int;
+};
 type CellState = Hidden | Exposed | Flagged
 type Cell = {
     State: CellState;
-    Index: int;
-    X:int;
-    Y:int;
+    Coords: CellCoords;
     IsMine: bool;
 };
 
@@ -20,32 +23,36 @@ type Game = {
     SecondaryMineLocations: Set<int>;
 };
 
-let getOffsetIndex (cell:Cell) (offset:int*int) =
-    let (dx, dy) = offset
-    (cell.X + dx, cell.Y + dy)
+let getArrayIndex x y width = x + y * width
 
-let isValidCell w h (xy:int*int) =
-    let (x,y) = xy
-    if x >= 0 && x < w && y >= 0 && y < h then true else false
+let getIndexOfOffset (cell:Cell) (game:Game) (offset:int*int) =
+    let (dx, dy) = offset
+    let x = cell.Coords.X + dx
+    let y = cell.Coords.Y + dy
+    { X = x; Y = y; Index = (getArrayIndex x y game.Width) }
+
+let isValidCell w h coords =
+    if coords.X >= 0 && coords.X < w && coords.Y >= 0 && coords.Y < h then true else false
 
 let getSurroundingCount (game:Game) (cell:Cell) =
     [(-1, -1);   (0, -1);  (1, -1);
      (-1,  0); (*(0, 0);*) (1, 0);
      (-1,  1);   (0, 1);   (1, 1);]
-    |> Seq.map (getOffsetIndex cell)
-    |> Seq.filter (fun x -> (isValidCell game.Width game.Height) x)
-    |> Seq.map (fun (x,y) -> game.Cells.[x + y * game.Width])
+    |> Seq.map (getIndexOfOffset cell game)
+    |> Seq.filter (isValidCell game.Width game.Height)
+    |> Seq.map (fun coords -> game.Cells.[coords.Index])
     |> Seq.filter (fun c -> c.IsMine)
     |> Seq.length
 
 
 let createGame (width:int) (height:int) (mineCount:int) (rand:System.Random) =
-    let createCell (primaryMineLocations:Set<int>) index = {
+    let createCell primaryMineLocations index = {
         State = Hidden;
-        Index = index;
-        X = index % width;
-        Y = index / width;
-        IsMine = primaryMineLocations.Contains index;
+        Coords = { Index = index;
+            X = index % width;
+            Y = index / width;
+        };        
+        IsMine = Set.contains index primaryMineLocations;
     }
 
     let maxIndex = width * height
