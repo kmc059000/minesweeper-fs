@@ -48,8 +48,7 @@ let rec sweepCells indexes game =
         let surrounding =
             match cell.SurroundingCount with
             | Some 0 -> getSurroundingCellsToSweep x game
-            | None
-            | Some _ -> []
+            | _ -> []
         let newGame = game |> setGameCellState x Exposed
         newGame |> sweepCells surrounding |> sweepCells xs
         
