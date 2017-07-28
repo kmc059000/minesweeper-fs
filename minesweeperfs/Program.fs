@@ -10,17 +10,17 @@ let getCellChar (game:Game) (cell:Cell) =
     | Hidden -> 
         match debug with
         | true -> if cell.IsMine then "*" else "H"
-        | false -> "·"
+        | false -> "· "
     | Exposed -> 
         match cell.SurroundingCount with
         | None 
-        | Some 0 -> " "
-        | Some i -> i.ToString()
-    | Flagged -> "?"
+        | Some 0 -> "  "
+        | Some i -> i.ToString() + " "
+    | Flagged -> "? "
 
 let getRowText (game:Game) (idx:int) (row:Cell[]) = 
     let rowText = row |> Array.map (getCellChar game) |> String.concat "" 
-    sprintf "%02i %s" (idx + 1) rowText
+    sprintf "%02i %s%02i" (idx + 1) rowText (idx + 1)
 
 let inc x = x + 1
 let getHeader (game:Game) (leftPadding:string) = 
@@ -29,13 +29,13 @@ let getHeader (game:Game) (leftPadding:string) =
     let indexes = 
         [0..(width - 1)]
         |> Seq.map inc
-        |> Seq.map (fun x -> x.ToString().PadLeft(maxChars, '0'))
+        |> Seq.map (fun x -> x.ToString().PadLeft(maxChars, ' '))
         |> Array.ofSeq
     [0..(maxChars - 1)]
         |> List.map (fun i -> 
             indexes 
             |> Array.map (fun x -> x.[i].ToString())
-            |> String.concat "")
+            |> String.concat " ")
         |> List.map (fun s -> leftPadding + s)
         |> String.concat "\r\n"
 
@@ -48,6 +48,7 @@ let printGame (game:Game) =
     printfn "Game:"
     printfn "%s" (getHeader game "   ")
     for r in rows do printfn "%s" r
+    printfn "%s" (getHeader game "   ")
     printfn ""
     printfn ""
 
