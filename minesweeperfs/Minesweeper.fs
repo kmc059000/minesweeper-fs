@@ -19,8 +19,9 @@ type Game = {
     State: GameState;
     Width: int;
     Height: int;
-    MineLocations: Set<int>;
-    SecondaryMineLocations: Set<int>;
+    MineLocations: Set<int> option;
+    MineCount: int;
+    Randoms: int[];
 };
 
 let getArrayIndex x y width = x + y * width
@@ -45,38 +46,28 @@ let getSurroundingCount (game:Game) (cell:Cell) =
     |> Seq.length
 
 
-let createGame (width:int) (height:int) (mineCount:int) (rand:System.Random) =
-    let createCell primaryMineLocations index = {
+let createGame width height mineCount randoms =
+    let initCell index = {
         State = Hidden;
         Coords = { Index = index;
             X = index % width;
             Y = index / width;
         };        
-        IsMine = Set.contains index primaryMineLocations;
+        IsMine = false;
     }
 
-    let maxIndex = width * height
-    
-    let allMineLocations =
-        Seq.initInfinite (fun _ -> rand.Next(maxIndex + 1))
-        |> Seq.distinct
-        |> Seq.take (mineCount + 1)
-        |> List.ofSeq
-
-    let primaryMineLocations = allMineLocations |> Seq.take (mineCount) |> Set.ofSeq
-    let secondaryMineLocation = allMineLocations |> Seq.skip 1 |> Seq.take (mineCount) |> Set.ofSeq
-    
     let cells = 
         [0..((width * height) - 1)] 
-        |> Seq.map (createCell primaryMineLocations)
+        |> Seq.map initCell
         |> Seq.toArray
     {
         Cells = cells;
         State = GameState.Start;
         Width = width;
         Height = height;
-        MineLocations = primaryMineLocations;
-        SecondaryMineLocations = secondaryMineLocation
+        MineLocations = None;
+        MineCount = mineCount;
+        Randoms = randoms;
     }
 
 let createImpossibleSimpleGame<'a> = createGame 1 1 1
@@ -84,3 +75,25 @@ let createSweepGame<'a> = createGame 3 3 8
 let createEasyGame<'a> = createGame 10 10 10
 let createMediumGame<'a> = createGame 20 20 80
 let createHardGame<'a> = createGame 30 30 400
+
+let placeMines (game:Game) (firstSweepCell:Cell) = 
+    let maxIndex = game.Width * game.Height
+    
+    let mineLocations =
+        Seq.initInfinite (fun i -> game.Randoms.[i % game.Randoms.Length] % (maxIndex + 1))
+        |> Seq.distinct
+        //omit the first cell
+        |> Seq.filter (fun c -> c <> firstSweepCell.Coords.Index)
+        |> Seq.take game.MineCount
+        |> Set.ofSeq
+
+    let newCells =
+        game.Cells
+        |> Array.map (fun c -> {c with IsMine = Set.contains c.Coords.Index mineLocations})
+    
+    { game with Cells = newCells; MineLocations = Some mineLocations; State = Playing }
+
+let tryPlaceMines (lastCell:Cell) (game:Game) =
+    match game.State with
+    | GameState.Start -> placeMines game lastCell
+    | _ -> game

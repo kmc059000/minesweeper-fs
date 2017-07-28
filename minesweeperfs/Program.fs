@@ -91,14 +91,16 @@ let processMove (game:Game) =
         printfn ""
         newState
 
-let gameloop (rand:System.Random) =
-    let mutable game = createEasyGame (new System.Random())
+let gameloop randomNumbers =
+    let mutable game = createEasyGame randomNumbers
     while game.State <> GameState.Exit && game.State <> GameState.Quit do
         game <- processMove game
     
     
 
 [<EntryPoint>]
-let main argv = 
-    gameloop (new System.Random())
+let main argv =
+    let rand = new System.Random()
+    let randomNumbers = [0..1000] |> List.map (fun _ -> rand.Next()) |> Array.ofList
+    gameloop randomNumbers
     0
