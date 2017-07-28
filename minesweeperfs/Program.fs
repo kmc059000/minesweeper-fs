@@ -3,7 +3,7 @@
 open Minesweeper
 open Commands
 
-let debug = false
+let debug = true
 
 let getCellChar (game:Game) (cell:Cell) =
     match cell.State with
@@ -12,9 +12,10 @@ let getCellChar (game:Game) (cell:Cell) =
         | true -> if cell.IsMine then "*" else "H"
         | false -> "·"
     | Exposed -> 
-        match getSurroundingCount game cell with
-        | 0 -> " "
-        | i -> i.ToString()
+        match cell.SurroundingCount with
+        | None 
+        | Some 0 -> " "
+        | Some i -> i.ToString()
     | Flagged -> "?"
 
 let getRowText (game:Game) (idx:int) (row:Cell[]) = 

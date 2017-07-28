@@ -12,6 +12,7 @@ type Cell = {
     State: CellState;
     Coords: CellCoords;
     IsMine: bool;
+    SurroundingCount: int option;
 };
 
 type Game = {
@@ -24,27 +25,28 @@ type Game = {
     Randoms: int[];
 };
 
+let surroundingOffsets = 
+    [(-1, -1);   (0, -1);  (1, -1);
+     (-1,  0); (*(0, 0);*) (1, 0);
+     (-1,  1);   (0, 1);   (1, 1);]
+
 let getArrayIndex x y width = x + y * width
 
-let getIndexOfOffset (cell:Cell) (game:Game) (offset:int*int) =
+let getIndexOfOffset (cell:Cell) gameWidth (offset:int*int) =
     let (dx, dy) = offset
     let x = cell.Coords.X + dx
     let y = cell.Coords.Y + dy
-    { X = x; Y = y; Index = (getArrayIndex x y game.Width) }
+    { X = x; Y = y; Index = (getArrayIndex x y gameWidth) }
 
 let isValidCell w h coords =
     if coords.X >= 0 && coords.X < w && coords.Y >= 0 && coords.Y < h then true else false
 
-let getSurroundingCount (game:Game) (cell:Cell) =
-    [(-1, -1);   (0, -1);  (1, -1);
-     (-1,  0); (*(0, 0);*) (1, 0);
-     (-1,  1);   (0, 1);   (1, 1);]
-    |> Seq.map (getIndexOfOffset cell game)
-    |> Seq.filter (isValidCell game.Width game.Height)
-    |> Seq.map (fun coords -> game.Cells.[coords.Index])
-    |> Seq.filter (fun c -> c.IsMine)
+let getSurroundingCount (mineLocations:Set<int>) gameWidth gameHeight (cell:Cell) =
+    surroundingOffsets
+    |> Seq.map (getIndexOfOffset cell gameWidth)
+    |> Seq.filter (isValidCell gameWidth gameHeight)
+    |> Seq.filter (fun coords -> Set.contains coords.Index mineLocations)
     |> Seq.length
-
 
 let createGame width height mineCount randoms =
     let initCell index = {
@@ -54,6 +56,7 @@ let createGame width height mineCount randoms =
             Y = index / width;
         };        
         IsMine = false;
+        SurroundingCount = None;
     }
 
     let cells = 
@@ -76,21 +79,28 @@ let createEasyGame<'a> = createGame 10 10 10
 let createMediumGame<'a> = createGame 20 20 80
 let createHardGame<'a> = createGame 30 30 400
 
+let tryPlaceMine mineLocations cell =
+    { cell with IsMine = Set.contains cell.Coords.Index mineLocations }
+
+let setSurroundingCount game mineLocations cell =
+    { cell with SurroundingCount = Some (getSurroundingCount mineLocations game.Width game.Height cell) }
+
 let placeMines (game:Game) (firstSweepCell:Cell) = 
     let maxIndex = game.Width * game.Height
     
     let mineLocations =
-        Seq.initInfinite (fun i -> game.Randoms.[i % game.Randoms.Length] % (maxIndex + 1))
+        Seq.initInfinite  (fun i -> game.Randoms.[i % game.Randoms.Length] % (maxIndex + 1))
         |> Seq.distinct
         //omit the first cell
         |> Seq.filter (fun c -> c <> firstSweepCell.Coords.Index)
         |> Seq.take game.MineCount
         |> Set.ofSeq
 
-    let newCells =
-        game.Cells
-        |> Array.map (fun c -> {c with IsMine = Set.contains c.Coords.Index mineLocations})
-    
+    let newCells = 
+        game.Cells 
+        |> Array.map (tryPlaceMine mineLocations)
+        |> Array.map (setSurroundingCount game mineLocations)
+       
     { game with Cells = newCells; MineLocations = Some mineLocations; State = Playing }
 
 let tryPlaceMines (lastCell:Cell) (game:Game) =
