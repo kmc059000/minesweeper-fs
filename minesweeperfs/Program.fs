@@ -50,14 +50,13 @@ let getGameDisplay (game:Game) =
         |> String.concat "\r\n"
     let stateMessage = 
         match game.State with
-        | Start | Playing -> ""
+        | Start | Playing | Exit -> ""
         | Win -> 
             "You won!"
         | Dead -> 
             "You have exploded! :("
         | Quit -> 
             "Quitter!"
-        | Exit -> ""
 
     sprintf "F# Minesweeper\r\n%s\r\n%s \r\n%s \r\n%s \r\n\r\n%s" help headerTop rows headerBottom stateMessage
 
