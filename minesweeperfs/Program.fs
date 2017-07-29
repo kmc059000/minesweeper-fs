@@ -28,10 +28,9 @@ let getCellChar (game:Game) (cell:Cell) =
         | (Exposed, _) ->  exposedChar
         | (Flagged, _) -> "?"
 
-let getRowText (game:Game) (idx:int) (row:Cell[]) = 
-    let rowText = row |> Array.map (getCellChar game) |> String.concat " " 
-    let rowNum = (idx + 1).ToString().PadLeft(2,' ')
-    sprintf "║%s║" rowText
+let getRowText (game:Game) (row:Cell[]) = 
+    let rowText = row |> Array.map (getCellChar game) |> String.concat " "
+    "║" + rowText + "║"
 
 let getHeader (game:Game) left right = 
     let inside =
@@ -41,14 +40,14 @@ let getHeader (game:Game) left right =
     left + inside + right 
 
 let getGameDisplay (game:Game) =
-    let rows = 
-        game.Cells
-        |> Array.chunkBySize game.Width
-        |> Array.mapi (getRowText game)
-        |> String.concat "\r\n"
     let headerTop = (getHeader game "╔═" "╗")
     let headerBottom = (getHeader game "╚═" "╝")
     let help = "Use arrow keys to move | Space to sweep | f to flag | q to quit"
+    let rows = 
+        game.Cells
+        |> Array.chunkBySize game.Width
+        |> Array.map (getRowText game)
+        |> String.concat "\r\n"
     let stateMessage = 
         match game.State with
         | Start | Playing -> ""
@@ -62,18 +61,16 @@ let getGameDisplay (game:Game) =
 
     sprintf "F# Minesweeper\r\n%s\r\n%s \r\n%s \r\n%s \r\n\r\n%s" help headerTop rows headerBottom stateMessage
 
-let processMove (game:Game) key =
-    let newState = 
-        match key with
-        | System.ConsoleKey.LeftArrow -> moveLeft game
-        | System.ConsoleKey.RightArrow -> moveRight game
-        | System.ConsoleKey.UpArrow -> moveUp game
-        | System.ConsoleKey.DownArrow -> moveDown game
-        | System.ConsoleKey.Q -> { game with State = GameState.Quit }
-        | System.ConsoleKey.Spacebar -> sweep game game.CursorPosition.X game.CursorPosition.Y
-        | System.ConsoleKey.F -> flag game game.CursorPosition.X game.CursorPosition.Y
-        | _ -> game
-    newState
+let processMove (game:Game) key = 
+    match key with
+    | System.ConsoleKey.LeftArrow -> moveLeft game
+    | System.ConsoleKey.RightArrow -> moveRight game
+    | System.ConsoleKey.UpArrow -> moveUp game
+    | System.ConsoleKey.DownArrow -> moveDown game
+    | System.ConsoleKey.Q -> { game with State = GameState.Quit }
+    | System.ConsoleKey.Spacebar -> sweep game game.CursorPosition.X game.CursorPosition.Y
+    | System.ConsoleKey.F -> flag game game.CursorPosition.X game.CursorPosition.Y
+    | _ -> game
 
 //unpure method
 let gameloop randomNumbers =
@@ -96,7 +93,4 @@ let main argv =
     let rand = new System.Random()
     let randomNumbers = [0..1000] |> List.map (fun _ -> rand.Next()) |> Array.ofList
     let game = gameloop randomNumbers
-    match game.State with
-    | Dead -> System.Console.ReadLine() |> ignore
-    | _ -> ()
     0
