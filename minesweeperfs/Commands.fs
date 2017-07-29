@@ -52,17 +52,13 @@ open Minesweeper
 
 
     module Move =
-        let move (game:Game) x y =
+        let move x y game =
             let newPosition = getIndexOfOffset game.CursorPosition game.Width (x, y)
             match (isValidCell game.Width game.Height newPosition) with
             | true -> { game with CursorPosition = newPosition; }
             | false -> game
             
-        let moveLeft game = move game -1 0
-        let moveRight game = move game 1 0 
-        let moveUp game = move game 0 -1
-        let moveDown game = move game 0 1
-
-
-
-
+        let moveLeft = move -1 0
+        let moveRight = move 1 0 
+        let moveUp = move 0 -1
+        let moveDown = move 0 1
