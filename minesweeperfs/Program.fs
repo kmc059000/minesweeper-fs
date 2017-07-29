@@ -32,6 +32,12 @@ let getRowText (game:Game) (row:Cell[]) =
     let rowText = row |> Array.map (getCellChar game) |> String.concat " "
     "║" + rowText + "║"
 
+let getRowsText game =
+    game.Cells
+        |> Array.chunkBySize game.Width
+        |> Array.map (getRowText game)
+        |> String.concat "\r\n"
+
 let getHeader (game:Game) left right = 
     let inside =
         [0..(game.Width - 2)]
@@ -40,14 +46,10 @@ let getHeader (game:Game) left right =
     left + inside + right 
 
 let getGameDisplay (game:Game) =
-    let headerTop = (getHeader game "╔═" "╗")
-    let headerBottom = (getHeader game "╚═" "╝")
     let help = "Use arrow keys to move | Space to sweep | f to flag | q to quit"
-    let rows = 
-        game.Cells
-        |> Array.chunkBySize game.Width
-        |> Array.map (getRowText game)
-        |> String.concat "\r\n"
+    let headerTop = getHeader game "╔═" "╗"
+    let headerBottom = getHeader game "╚═" "╝"
+    let rows = getRowsText game
     let stateMessage = 
         match game.State with
         | Start | Playing | Exit -> ""
