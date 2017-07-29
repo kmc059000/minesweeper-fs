@@ -6,7 +6,8 @@ open Minesweeper
             match cell.Coords.Index = index with
                 | true -> { cell with State = state}
                 | false -> cell
-
+        
+        //todo this is inefficient when sweeping since we create 1 array per sweeped cell.
         let setGameCellState index state (game:Game) =
             let newCells = game.Cells |> Array.map (setCellState index state)
             { game with Cells = newCells}
