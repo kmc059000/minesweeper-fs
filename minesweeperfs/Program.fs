@@ -8,20 +8,25 @@ open Commands.Move
 let debug = false
 
 let getCellChar (game:Game) (cell:Cell) =
+    let exposedChar = 
+        match cell.IsMine with
+            | true -> "*"
+            | false ->
+                match cell.SurroundingCount with
+                | None 
+                | Some 0 -> " "
+                | Some i -> i.ToString()
     match game.CursorPosition = cell.Coords with
     | true -> "@"
-    | false -> 
-        match cell.State with
-        | Hidden -> 
+    | false ->
+        match (cell.State, game.State) with
+        | (_, Dead) -> exposedChar
+        | (Hidden, _) -> 
             match debug with
             | true -> if cell.IsMine then "*" else "H"
             | false -> "·"
-        | Exposed -> 
-            match cell.SurroundingCount with
-            | None 
-            | Some 0 -> " "
-            | Some i -> i.ToString()
-        | Flagged -> "?"
+        | (Exposed, _) ->  exposedChar
+        | (Flagged, _) -> "?"
 
 let getRowText (game:Game) (idx:int) (row:Cell[]) = 
     let rowText = row |> Array.map (getCellChar game) |> String.concat " " 
