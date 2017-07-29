@@ -26,25 +26,14 @@ let getCellChar (game:Game) (cell:Cell) =
 let getRowText (game:Game) (idx:int) (row:Cell[]) = 
     let rowText = row |> Array.map (getCellChar game) |> String.concat " " 
     let rowNum = (idx + 1).ToString().PadLeft(2,' ')
-    sprintf "%s║%s║%s" rowNum (rowText) rowNum
+    sprintf "║%s║" rowText
 
-let inc x = x + 1
-let getHeader (game:Game) (leftPadding:string) = 
-    let width = game.Width
-    let maxChars = width.ToString().Length
-    let indexes = 
-        [0..(width - 1)]
-        |> Seq.map inc
-        |> Seq.map (fun x -> "═" + x.ToString().PadLeft(maxChars, ' ') + "═")
-        |> Array.ofSeq
-    [0..(maxChars + 1)]
-        |> List.map (fun i -> 
-            indexes 
-            |> Array.map (fun x -> x.[i].ToString())
-            |> String.concat (if i = 0 || i = maxChars + 1 then "═" else " "))
-        |> List.map (fun s -> leftPadding + "║" + s + "║")
-        |> String.concat "\r\n"
-
+let getHeader (game:Game) left right = 
+    let inside =
+        [0..(game.Width - 2)]
+        |> Seq.map (fun x -> "══")
+        |> String.concat ""
+    left + inside + right 
 
 let getGameDisplay (game:Game) =
     let rows = 
@@ -52,20 +41,21 @@ let getGameDisplay (game:Game) =
         |> Array.chunkBySize game.Width
         |> Array.mapi (getRowText game)
         |> String.concat "\r\n"
-    let header = (getHeader game "  ")
+    let headerTop = (getHeader game "╔═" "╗")
+    let headerBottom = (getHeader game "╚═" "╝")
+    let help = "Use arrow keys to move | Space to sweep | f to flag | q to quit"
     let stateMessage = 
         match game.State with
-        | Start | Playing -> 
-            "Use arrow keys to move.\r\nSpace to sweep\r\nf to flag.\r\nq to quit"
+        | Start | Playing -> ""
         | Win -> 
-            "                       \r\n              \r\n          \r\nYou won! "
+            "You won!"
         | Dead -> 
-            "                       \r\n              \r\n          \r\nYou have exploded! :("
+            "You have exploded! :("
         | Quit -> 
-            "                       \r\n              \r\n          \r\nQuitter! "
+            "Quitter!"
         | Exit -> ""
 
-    sprintf "Game: \r\n%s \r\n%s \r\n%s \r\n\r\n%s" header rows header stateMessage
+    sprintf "F# Minesweeper\r\n%s\r\n%s \r\n%s \r\n%s \r\n\r\n%s" help headerTop rows headerBottom stateMessage
 
     
 
