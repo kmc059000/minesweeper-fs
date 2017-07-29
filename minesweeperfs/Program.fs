@@ -57,35 +57,33 @@ let getGameDisplay (game:Game) =
 
     sprintf "F# Minesweeper\r\n%s\r\n%s \r\n%s \r\n%s \r\n\r\n%s" help headerTop rows headerBottom stateMessage
 
-    
+let processMove (game:Game) key =
+    let newState = 
+        match key with
+        | System.ConsoleKey.LeftArrow -> moveLeft game
+        | System.ConsoleKey.RightArrow -> moveRight game
+        | System.ConsoleKey.UpArrow -> moveUp game
+        | System.ConsoleKey.DownArrow -> moveDown game
+        | System.ConsoleKey.Q -> { game with State = GameState.Quit }
+        | System.ConsoleKey.Spacebar -> sweep game game.CursorPosition.X game.CursorPosition.Y
+        | System.ConsoleKey.F -> flag game game.CursorPosition.X game.CursorPosition.Y
+        | _ -> game
+    newState
 
-let processMove (game:Game) =
-    System.Console.SetCursorPosition(0,0)
-    printfn "%s" (getGameDisplay game)
-
-    if game.State = Dead
-    then
-        { game with State = Exit }
-    else
-        let key = System.Console.ReadKey()
-        let newState = 
-            match key.Key with
-            | System.ConsoleKey.LeftArrow -> moveLeft game
-            | System.ConsoleKey.RightArrow -> moveRight game
-            | System.ConsoleKey.UpArrow -> moveUp game
-            | System.ConsoleKey.DownArrow -> moveDown game
-            | System.ConsoleKey.Q -> { game with State = GameState.Quit }
-            | System.ConsoleKey.Spacebar -> sweep game game.CursorPosition.X game.CursorPosition.Y
-            | System.ConsoleKey.F -> flag game game.CursorPosition.X game.CursorPosition.Y
-            | _ -> game
-        newState
-
+//unpure method
 let gameloop randomNumbers =
     let mutable game = createEasyGame randomNumbers
     while game.State <> GameState.Exit && game.State <> GameState.Quit do
-        game <- processMove game
+        //print UI
+        System.Console.SetCursorPosition(0,0)
+        printfn "%s" (getGameDisplay game)
+
+        //get input from user
+        let key = System.Console.ReadKey()
+
+        //get new game state
+        game <- processMove game key.Key
     game
-    
     
 
 [<EntryPoint>]
