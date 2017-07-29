@@ -38,7 +38,7 @@ open Minesweeper
         
 
         let sweep (game:Game) (x:int) (y:int) = 
-            let index = x + (y * game.Width)
+            let index = getArrayIndex x y game.Width
             game 
                 |> tryPlaceMines index
                 |> sweepCells [index]
@@ -47,7 +47,7 @@ open Minesweeper
 
     module Flag =
         let flag (game:Game) (x:int) (y:int) = 
-            let index = x + (y * game.Width)
+            let index = getArrayIndex x y game.Width
             game |> Common.setGameCellState index Flagged
 
 
