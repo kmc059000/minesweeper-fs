@@ -16,6 +16,7 @@ type Cell = {
 };
 
 type Game = {
+    CursorPosition: CellCoords;
     Cells: Cell[];
     State: GameState;
     Width: int;
@@ -32,10 +33,10 @@ let surroundingOffsets =
 
 let getArrayIndex x y width = x + y * width
 
-let getIndexOfOffset (cell:Cell) gameWidth (offset:int*int) =
+let getIndexOfOffset (coords:CellCoords) gameWidth (offset:int*int) =
     let (dx, dy) = offset
-    let x = cell.Coords.X + dx
-    let y = cell.Coords.Y + dy
+    let x = coords.X + dx
+    let y = coords.Y + dy
     { X = x; Y = y; Index = (getArrayIndex x y gameWidth) }
 
 let isValidCell w h coords =
@@ -46,7 +47,7 @@ let getCell game coords =
 
 let getValidSurroundingIndexes gameWidth gameHeight (cell:Cell) =
     surroundingOffsets
-    |> Seq.map (getIndexOfOffset cell gameWidth)
+    |> Seq.map (getIndexOfOffset cell.Coords gameWidth)
     |> Seq.filter (isValidCell gameWidth gameHeight)
 
 let getSurroundingCount (mineLocations:Set<int>) gameWidth gameHeight (cell:Cell) =
@@ -70,6 +71,7 @@ let createGame width height mineCount randoms =
         |> Seq.map initCell
         |> Seq.toArray
     {
+        CursorPosition = { X= 0; Y = 0; Index = 0; }
         Cells = cells;
         State = GameState.Start;
         Width = width;
