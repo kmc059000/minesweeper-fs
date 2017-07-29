@@ -7,6 +7,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "minesweeperfs", "minesweepe
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "minesweeper.game", "minesweeper.game\minesweeper.game.fsproj", "{CABC7781-E217-415D-BADA-7695F7B934B7}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "minesweeper.solvers", "minesweeper.solvers\minesweeper.solvers.fsproj", "{4A767ACC-3FCF-4A1C-B3E6-16F3DBECAB59}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{CABC7781-E217-415D-BADA-7695F7B934B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CABC7781-E217-415D-BADA-7695F7B934B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CABC7781-E217-415D-BADA-7695F7B934B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A767ACC-3FCF-4A1C-B3E6-16F3DBECAB59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A767ACC-3FCF-4A1C-B3E6-16F3DBECAB59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A767ACC-3FCF-4A1C-B3E6-16F3DBECAB59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A767ACC-3FCF-4A1C-B3E6-16F3DBECAB59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

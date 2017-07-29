@@ -23,7 +23,7 @@ open Minesweeper
                     |> Seq.map (fun x -> x.Coords.Index)
                     |> List.ofSeq
             | _ -> []
-        
+
         //this will auto-sweep the surrounding cells if the sweeped cell has 0 surrounding mines.
         let rec sweepCells indexes game =
             match indexes with 
@@ -36,7 +36,7 @@ open Minesweeper
                     | _ -> []
                 let newGame = game |> Common.setGameCellState x Exposed
                 newGame |> sweepCells surrounding |> sweepCells xs
-        
+
 
         let sweep (game:Game) (x:int) (y:int) = 
             let index = getArrayIndex x y game.Width
