@@ -101,6 +101,7 @@ open Common
                         | None -> id
                     |> match probability with
                         | 1.0 -> sweepAll cells
+                        | 0.0 -> failwith "No known moves left. This must be a bug"
                         | _ -> sweepAll [List.head cells]
 
                 let newSolution = getSolutionFromGame game
