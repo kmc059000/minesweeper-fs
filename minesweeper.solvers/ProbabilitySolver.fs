@@ -102,7 +102,9 @@ open Common
                     |> match probability with
                         | 1.0 -> sweepAll cells
                         | 0.0 -> failwith "No known moves left. This must be a bug"
-                        | _ -> sweepAll [List.head cells]
+                        | _ -> 
+                            let idx = rand.Next(cells.Length)
+                            sweepAll [List.item idx cells]
 
                 let newSolution = getSolutionFromGame game
                 solveWithProbability newSolution
