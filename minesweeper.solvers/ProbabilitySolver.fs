@@ -34,17 +34,18 @@ open Common
         let getExposedNeighbors = getNeighborsOfType getExposedCell
 
         let getMineProbability solution exposedCell =
-            let surroundingCount = float exposedCell.SurroundingCount
-            let flaggedCount = float ((getFlaggedNeighbors solution exposedCell.Coords) |> Seq.length)
-            let hiddenCount = float ((getHiddenNeighbors solution exposedCell.Coords) |> Seq.length)
-            let p = (surroundingCount - flaggedCount) / hiddenCount
+            let surroundingCount = exposedCell.SurroundingCount |> float
+            let flaggedCount = getFlaggedNeighbors solution exposedCell.Coords |> Seq.length |> float
+            let hiddenCount = getHiddenNeighbors solution exposedCell.Coords |> Seq.length |> float
+            let p = (surroundingCount - flaggedCount) / (hiddenCount + flaggedCount)
             p
 
         let solutionMineProbability solution =
             //# of remaining mines / number of hidden cells
-            let flaggedCells = solution.Cells |> Seq.choose getFlaggedCell |> Seq.length
-            let hiddenCells =  solution.Cells |> Seq.choose getHiddenCell |> Seq.length
-            ((float solution.Game.MineCount) - (float flaggedCells)) / (float hiddenCells)
+            let totalMines = solution.Game.MineCount |> float
+            let flaggedCells = solution.Cells |> Seq.choose getFlaggedCell |> Seq.length |> float
+            let hiddenCells =  solution.Cells |> Seq.choose getHiddenCell |> Seq.length |> float
+            (totalMines - flaggedCells) / hiddenCells
 
         //returns the probability of the hidden cell being a mine.
         //if there are any exposed neighbors, then the probability is the highest probability that this cell is that neighbors mine
@@ -100,8 +101,7 @@ open Common
                         | Some (_, cells) -> flagAll (cells |> (Seq.map fst) |> Seq.toList)
                         | None -> id
                     |> match probability with
-                        | 1.0 -> sweepAll cells
-                        | 0.0 -> failwith "No known moves left. This must be a bug"
+                        | 0.0 -> sweepAll cells
                         | _ -> 
                             let idx = rand.Next(cells.Length)
                             sweepAll [List.item idx cells]
