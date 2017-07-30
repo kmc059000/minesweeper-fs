@@ -35,12 +35,12 @@ let rec runSolverTests (solver:Game->Solution) previousResults =
 
 
 
-let testRandomSolver = runSolverTests randomSolver (0,0)
+//let testRandomSolver = runSolverTests randomSolver (0,0)
 let testProbabilitySolver = runSolverTests probabilitySolver (0,0)
 
 [<EntryPoint>]
 let main argv = 
-    printf "%s" (testRandomSolver.ToString())
+    //printf "%s" (testRandomSolver.ToString())
     printf "%s" (testProbabilitySolver.ToString())
     let r = System.Console.ReadLine()
     0

@@ -68,30 +68,47 @@ open Common
             | x::xs ->
                 sweep game x.Coords.X x.Coords.Y
                 |> sweepAll xs
+        
+        let rec flagAll (cells:HiddenCell list) game =
+            match cells with
+            | [] -> game
+            | x::xs ->
+                flag game x.Coords.X x.Coords.Y
+                |> flagAll xs
 
         let rec solveWithProbability (solution:Solution) = 
             match solution.SolutionState with
             | Win | Dead -> solution
             | _ -> 
-                let (probability, cellResults) = 
+                let cellsByProbability = 
                     getUnsolvedCells solution 
                     |> Seq.map (getCellProbability solution)
                     |> Seq.groupBy (fun (cell, prob) -> prob)
+                
+                let cellsToFlag = cellsByProbability |> Seq.tryFind (fun (p, _) -> p = 1.0) 
+                
+                let (probability, cellResults) = 
+                    cellsByProbability
                     |> Seq.sortBy (fun (prob, cells) -> prob)
                     |> Seq.head
-                
+
                 let cells = cellResults |> Seq.map (fun (c,p) -> c) |> Seq.toList
 
-                let game = 
-                    match probability with
-                    | 1.0 -> sweepAll cells solution.Game
-                    | _ -> sweepAll [List.head cells] solution.Game
+                let game =
+                    solution.Game
+                    |> match cellsToFlag with 
+                        | Some (_, cells) -> flagAll (cells |> (Seq.map fst) |> Seq.toList)
+                        | None -> id
+                    |> match probability with
+                        | 1.0 -> sweepAll cells
+                        | _ -> sweepAll [List.head cells]
 
                 let newSolution = getSolutionFromGame game
                 solveWithProbability newSolution
                     
                 //find max probability of each sweepable cell of whether it is a mine or not
-                //sweep all that are 100% certain that it is a mine
+                //flag all that are 100% certain that it is a mine
+                //sweep all that are 0% certain that it is a mine
                 //if none, randomly choose 1 cell from those that have the highest probability
                 //reevaulate cells
 
