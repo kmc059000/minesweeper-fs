@@ -58,6 +58,7 @@
     <None Include="App.config" />
     <Content Include="packages.config" />
     <Compile Include="Common.fs" />
+    <Compile Include="ProbabilitySolver.fs" />
     <Compile Include="RandomSolver.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

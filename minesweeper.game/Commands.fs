@@ -17,7 +17,7 @@ open Minesweeper
             let cell = game.Cells.[index]
             match cell.State with
             | Hidden-> 
-                getValidSurroundingIndexes game.Width game.Height cell
+                getValidSurroundingIndexes game.Width game.Height cell.Coords
                     |> Seq.map (getCell game)
                     |> Seq.filter (fun x -> x.IsMine = false)
                     |> Seq.map (fun x -> x.Coords.Index)

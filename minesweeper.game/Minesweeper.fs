@@ -45,13 +45,16 @@ let isValidCell w h coords =
 let getCell game coords =
     game.Cells.[coords.Index]
 
-let getValidSurroundingIndexes gameWidth gameHeight (cell:Cell) =
+let getValidSurroundingIndexes gameWidth gameHeight coords =
     surroundingOffsets
-    |> Seq.map (getIndexOfOffset cell.Coords gameWidth)
+    |> Seq.map (getIndexOfOffset coords gameWidth)
     |> Seq.filter (isValidCell gameWidth gameHeight)
 
+let getValidSurroundingIndexesForCell gameWidth gameHeight cell =
+    getValidSurroundingIndexes gameWidth gameHeight cell.Coords
+
 let getSurroundingCount (mineLocations:Set<int>) gameWidth gameHeight (cell:Cell) =
-    getValidSurroundingIndexes gameWidth gameHeight cell
+    getValidSurroundingIndexesForCell gameWidth gameHeight cell
     |> Seq.filter (fun coords -> Set.contains coords.Index mineLocations)
     |> Seq.length
 

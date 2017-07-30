@@ -1,13 +1,15 @@
 ﻿open Minesweeper
 open Common
 open RandomSolver
+open ProbabilitySolver
 
 let createGame i = 
     let rand = new System.Random()
     let randoms = ([0..1000] |> List.map (fun _ -> rand.Next()) |> Array.ofList)
     (createEasyGame randoms, i)
 
-let games = [0..10000] |> Seq.map createGame
+let testCases = 10000
+let games = [0..(testCases - 1)] |> Seq.map createGame
 
 let testSolver (solver:Game->Solution) game = 
     let solved = solver game
@@ -18,7 +20,7 @@ let testSolverAsync (solver:Game->Solution) (game,i) = async {
     return testSolver solver game
 }
 
-let rec runSolverTests (solver:Game->Solution) numTests previousResults =
+let rec runSolverTests (solver:Game->Solution) previousResults =
     games
     |> Seq.map (testSolverAsync solver)
     |> Async.Parallel
@@ -31,10 +33,14 @@ let rec runSolverTests (solver:Game->Solution) numTests previousResults =
             | _ -> failwith "Unexpected solution state") 
         (0,0)
 
-let testRandomSolver = runSolverTests randomSolver 10000 (0,0)
+
+
+let testRandomSolver = runSolverTests randomSolver (0,0)
+let testProbabilitySolver = runSolverTests probabilitySolver (0,0)
 
 [<EntryPoint>]
 let main argv = 
     printf "%s" (testRandomSolver.ToString())
+    printf "%s" (testProbabilitySolver.ToString())
     let r = System.Console.ReadLine()
     0
