@@ -57,8 +57,8 @@ open Common
                 |> Seq.toList
             let probability = 
                 match probabilities.Length with
-                | 0 -> solutionProbability
-                | _ -> probabilities |> Seq.max
+                | 0 -> (solutionProbability, solutionProbability)
+                | _ -> (probabilities |> Seq.min, probabilities |> Seq.max)
             (cell, probability)
             
 
@@ -87,15 +87,18 @@ open Common
                     solution.Cells
                     |> Seq.choose getHiddenCell
                     |> Seq.map (getCellProbability solution solutionProbability)
-                    |> Seq.groupBy (fun (cell, prob) -> prob)
+                    //|> Seq.groupBy (fun (cell, prob) -> prob)
                 
+                let cellsByMaxProbability = cellsByProbability |> Seq.groupBy (fun (cell, (min, max)) -> max)
+                let cellsByMinProbability = cellsByProbability |> Seq.groupBy (fun (cell, (min, max)) -> min)
+
                 let cellsToFlag = 
-                    cellsByProbability 
+                    cellsByMaxProbability 
                     |> Seq.tryFind (fun (p, _) -> p = 1.0) 
                     |> Option.map (fun (_, cells) -> Seq.map fst cells |> Seq.toList)
                 
                 let (probability, cellResults) = 
-                    cellsByProbability
+                    cellsByMinProbability
                     |> Seq.sortBy fst
                     |> Seq.head
 
