@@ -84,23 +84,27 @@ open Common
                 let solutionProbability = solutionMineProbability solution
 
                 let cellsByProbability = 
-                    getUnsolvedCells solution 
+                    solution.Cells
+                    |> Seq.choose getHiddenCell
                     |> Seq.map (getCellProbability solution solutionProbability)
                     |> Seq.groupBy (fun (cell, prob) -> prob)
                 
-                let cellsToFlag = cellsByProbability |> Seq.tryFind (fun (p, _) -> p = 1.0) 
+                let cellsToFlag = 
+                    cellsByProbability 
+                    |> Seq.tryFind (fun (p, _) -> p = 1.0) 
+                    |> Option.map (fun (_, cells) -> Seq.map fst cells |> Seq.toList)
                 
                 let (probability, cellResults) = 
                     cellsByProbability
-                    |> Seq.sortBy (fun (prob, cells) -> prob)
+                    |> Seq.sortBy fst
                     |> Seq.head
 
-                let cells = cellResults |> Seq.map (fun (c,p) -> c) |> Seq.toList
+                let cells = cellResults |> Seq.map fst |> Seq.toList
 
                 let game =
                     solution.Game
                     |> match (cellsToFlag, probability) with 
-                        | Some (_, cells), _ -> flagAll (cells |> (Seq.map fst) |> Seq.toList)
+                        | Some cells, _ -> flagAll cells
                         | None, probability -> 
                             match probability with
                             | 0.0 -> sweepAll cells
