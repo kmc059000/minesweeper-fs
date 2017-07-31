@@ -99,14 +99,14 @@ open Common
 
                 let game =
                     solution.Game
-                    |> match cellsToFlag with 
-                        | Some (_, cells) -> flagAll (cells |> (Seq.map fst) |> Seq.toList)
-                        | None -> id
-                    |> match probability with
-                        | 0.0 -> sweepAll cells
-                        | _ -> 
-                            let idx = rand.Next(cells.Length)
-                            sweepAll [List.item idx cells]
+                    |> match (cellsToFlag, probability) with 
+                        | Some (_, cells), _ -> flagAll (cells |> (Seq.map fst) |> Seq.toList)
+                        | None, probability -> 
+                            match probability with
+                            | 0.0 -> sweepAll cells
+                            | _ -> 
+                                let idx = rand.Next(cells.Length)
+                                sweepAll [List.item idx cells]
 
                 let newSolution = getSolutionFromGame game
                 solveWithProbability newSolution
