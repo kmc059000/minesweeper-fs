@@ -34,18 +34,18 @@ open Common
         let getExposedNeighbors = getNeighborsOfType getExposedCell
 
         let getMineProbability solution exposedCell =
-            let surroundingCount = exposedCell.SurroundingCount |> float
+            let neighborMines = exposedCell.SurroundingCount |> float
             let flaggedCount = getFlaggedNeighbors solution exposedCell.Coords |> Seq.length |> float
             let hiddenCount = getHiddenNeighbors solution exposedCell.Coords |> Seq.length |> float
-            let p = (surroundingCount - flaggedCount) / (hiddenCount + flaggedCount)
+            let p = (neighborMines - flaggedCount) / hiddenCount
             p
 
         let solutionMineProbability solution =
             //# of remaining mines / number of hidden cells
             let totalMines = solution.Game.MineCount |> float
-            let flaggedCells = solution.Cells |> Seq.choose getFlaggedCell |> Seq.length |> float
-            let hiddenCells =  solution.Cells |> Seq.choose getHiddenCell |> Seq.length |> float
-            (totalMines - flaggedCells) / hiddenCells
+            let flaggedCount = solution.Cells |> Seq.choose getFlaggedCell |> Seq.length |> float
+            let hiddenCount =  solution.Cells |> Seq.choose getHiddenCell |> Seq.length |> float
+            (totalMines - flaggedCount) / hiddenCount
 
         //returns the probability of the hidden cell being a mine.
         //if there are any exposed neighbors, then the probability is the highest probability that this cell is that neighbors mine
