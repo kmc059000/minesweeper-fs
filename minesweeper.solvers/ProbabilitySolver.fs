@@ -50,14 +50,14 @@ open Common
         //returns the probability of the hidden cell being a mine.
         //if there are any exposed neighbors, then the probability is the highest probability that this cell is that neighbors mine
         //otherwise, this cell's probability is the number of remaining mines / number of hidden cells
-        let getCellProbability solution (cell:HiddenCell) =
+        let getCellProbability solution solutionProbability (cell:HiddenCell) =
             let probabilities = 
                 getExposedNeighbors solution cell.Coords
                 |> Seq.map (getMineProbability solution)
                 |> Seq.toList
             let probability = 
                 match probabilities.Length with
-                | 0 -> solutionMineProbability solution
+                | 0 -> solutionProbability
                 | _ -> probabilities |> Seq.max
             (cell, probability)
             
@@ -81,9 +81,11 @@ open Common
             match solution.SolutionState with
             | Win | Dead -> solution
             | _ -> 
+                let solutionProbability = solutionMineProbability solution
+
                 let cellsByProbability = 
                     getUnsolvedCells solution 
-                    |> Seq.map (getCellProbability solution)
+                    |> Seq.map (getCellProbability solution solutionProbability)
                     |> Seq.groupBy (fun (cell, prob) -> prob)
                 
                 let cellsToFlag = cellsByProbability |> Seq.tryFind (fun (p, _) -> p = 1.0) 
