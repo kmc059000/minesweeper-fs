@@ -100,7 +100,7 @@ let placeMines (game:Game) lastSelectedIndex =
     let maxIndex = game.Width * game.Height
     
     let mineLocations =
-        Seq.initInfinite  (fun i -> game.Randoms.[i % game.Randoms.Length] % (maxIndex + 1))
+        Seq.initInfinite  (fun i -> game.Randoms.[i % game.Randoms.Length] % (maxIndex))
         |> Seq.distinct
         //omit the first cell
         |> Seq.filter (fun c -> c <> lastSelectedIndex)
