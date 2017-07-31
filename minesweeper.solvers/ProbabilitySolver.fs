@@ -1,37 +1,11 @@
 ﻿module ProbabilitySolver
 
 open Minesweeper
-open Commands.Sweep
-open Commands.Flag
-open Common
+open Common.Solvers
+open Common.Utilities
 
     module private Solvers =
         let rand = new System.Random()
-
-        //i wish i could find a way to write these 3 functions as the same generic function
-        let getExposedCell cell =
-            match cell with 
-            | Exposed e -> Some e
-            | _ -> None
-        
-        let getFlaggedCell cell =
-            match cell with 
-            | Flagged e -> Some e
-            | _ -> None
-
-        let getHiddenCell cell =
-            match cell with 
-            | Hidden e -> Some e
-            | _ -> None
-
-        let getNeighborsOfType typeMatcher solution coords =
-            getValidSurroundingIndexes solution.Game.Width solution.Game.Height coords
-            |> Seq.map (fun n -> solution.Cells.[n.Index])
-            |> Seq.choose typeMatcher
-                
-        let getFlaggedNeighbors = getNeighborsOfType getFlaggedCell
-        let getHiddenNeighbors = getNeighborsOfType getHiddenCell
-        let getExposedNeighbors = getNeighborsOfType getExposedCell
 
         let getMineProbability solution exposedCell =
             let neighborMines = exposedCell.SurroundingCount |> float
@@ -60,22 +34,6 @@ open Common
                 | 0 -> (solutionProbability, solutionProbability)
                 | _ -> (probabilities |> Seq.min, probabilities |> Seq.max)
             (cell, probability)
-            
-
-
-        let rec sweepAll (cells:HiddenCell list) game =
-            match cells with
-            | [] -> game
-            | x::xs ->
-                sweep game x.Coords.X x.Coords.Y
-                |> sweepAll xs
-        
-        let rec flagAll (cells:HiddenCell list) game =
-            match cells with
-            | [] -> game
-            | x::xs ->
-                flag game x.Coords.X x.Coords.Y
-                |> flagAll xs
 
         let rec solveWithProbability (solution:Solution) = 
             match solution.SolutionState with

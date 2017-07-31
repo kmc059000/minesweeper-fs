@@ -1,5 +1,6 @@
 ﻿open Minesweeper
-open Common
+open Common.Solvers
+open Common.Utilities
 open RandomSolver
 open ProbabilitySolver
 
