@@ -1,15 +1,10 @@
 ﻿module Commands
 
 open Minesweeper
-    module Common =
-        let setCellState index state (cell:Cell) = 
-            match cell.Coords.Index = index with
-                | true -> { cell with State = state}
-                | false -> cell
-        
-        //todo this is inefficient when sweeping since we create 1 array per sweeped cell.
+    module Common =        
         let setGameCellState index state (game:Game) =
-            let newCells = game.Cells |> Array.map (setCellState index state)
+            let cell = game.Cells.[index]
+            let newCells = game.Cells |> Map.add index { cell with State = state; }
             { game with Cells = newCells}
 
     module Sweep =
@@ -18,6 +13,7 @@ open Minesweeper
             match cell.State with
             | Hidden-> 
                 getValidSurroundingIndexes game.Width game.Height cell.Coords
+                    |> Seq.map (fun c -> c.Index)
                     |> Seq.map (getCell game)
                     |> Seq.filter (fun x -> x.IsMine = false)
                     |> Seq.map (fun x -> x.Coords.Index)

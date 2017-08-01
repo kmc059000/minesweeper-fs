@@ -34,6 +34,9 @@ let getRowText (game:Game) (row:Cell[]) =
 
 let getRowsText game =
     game.Cells
+        |> Map.toArray
+        |> Array.map snd
+        |> Array.sortBy (fun c -> c.Coords.Index)
         |> Array.chunkBySize game.Width
         |> Array.map (getRowText game)
         |> String.concat "\r\n"

@@ -17,8 +17,9 @@ open Common.Utilities
         let solutionMineProbability solution =
             //# of remaining mines / number of hidden cells
             let totalMines = solution.Game.MineCount |> float
-            let flaggedCount = solution.Cells |> Seq.choose getFlaggedCell |> Seq.length |> float
-            let hiddenCount =  solution.Cells |> Seq.choose getHiddenCell |> Seq.length |> float
+            let cells = solutionCellsOfSeq solution
+            let flaggedCount = cells |> Seq.choose getFlaggedCell |> Seq.length |> float
+            let hiddenCount =  cells |> Seq.choose getHiddenCell |> Seq.length |> float
             (totalMines - flaggedCount) / hiddenCount
 
         //returns the probability of the hidden cell being a mine.
@@ -42,7 +43,7 @@ open Common.Utilities
                 let solutionProbability = solutionMineProbability solution
 
                 let cellsByProbability = 
-                    solution.Cells
+                    solutionCellsOfSeq solution
                     |> Seq.choose getHiddenCell
                     |> Seq.map (getCellProbability solution solutionProbability)
                     //|> Seq.groupBy (fun (cell, prob) -> prob)

@@ -17,7 +17,7 @@ type Cell = {
 
 type Game = {
     CursorPosition: CellCoords;
-    Cells: Cell[];
+    Cells: Map<int, Cell>;
     State: GameState;
     Width: int;
     Height: int;
@@ -43,7 +43,7 @@ let isValidCell w h coords =
     if coords.X >= 0 && coords.X < w && coords.Y >= 0 && coords.Y < h then true else false
 
 let getCell game coords =
-    game.Cells.[coords.Index]
+    game.Cells.[coords]
 
 let getValidSurroundingIndexes gameWidth gameHeight coords =
     surroundingOffsets
@@ -72,7 +72,8 @@ let createGame width height mineCount randoms =
     let cells = 
         [0..((width * height) - 1)] 
         |> Seq.map initCell
-        |> Seq.toArray
+        |> Seq.map (fun c -> (c.Coords.Index,c))
+        |> Map.ofSeq
     {
         CursorPosition = { X= 0; Y = 0; Index = 0; }
         Cells = cells;
@@ -108,9 +109,13 @@ let placeMines (game:Game) lastSelectedIndex =
         |> Set.ofSeq
 
     let newCells = 
-        game.Cells 
-        |> Array.map (tryPlaceMine mineLocations)
-        |> Array.map (setSurroundingCount game mineLocations)
+        game.Cells
+        |> Map.toSeq
+        |> Seq.map snd
+        |> Seq.map (tryPlaceMine mineLocations)
+        |> Seq.map (setSurroundingCount game mineLocations)
+        |> Seq.map (fun c -> (c.Coords.Index,c))
+        |> Map.ofSeq
        
     { game with Cells = newCells; MineLocations = Some mineLocations; State = Playing }
 
@@ -119,9 +124,11 @@ let tryPlaceMines lastSelectedIndex (game:Game) =
     | GameState.Start -> placeMines game lastSelectedIndex
     | _ -> game
 
-let isWin (cells:Cell[]) = 
+let isWin (cells:Map<int, Cell>) = 
     cells
-    |> Array.exists (fun x -> not x.IsMine && x.State <> CellState.Exposed)
+    |> Map.toSeq
+    |> Seq.map snd
+    |> Seq.exists (fun x -> not x.IsMine && x.State <> CellState.Exposed)
     |> not
 
 let testWin (game:Game) =

@@ -15,18 +15,18 @@ open Minesweeper
         type SolutionState = Unsolved | Win | Dead
         type Solution = {
             Game : Game;
-            Cells: VisibleCell[];
+            Cells: Map<int, VisibleCell>;
             SolutionState: SolutionState;
         }
 
         let getSolutionFromGame (game:Game) =
             let getSolutionCell (c:Cell) = 
                 match c.State with
-                | CellState.Hidden -> Hidden { Coords = c.Coords; }
-                | CellState.Exposed -> Exposed { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; }
-                | CellState.Flagged -> Flagged { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; }
+                | CellState.Hidden -> (c.Coords.Index, Hidden { Coords = c.Coords; })
+                | CellState.Exposed -> (c.Coords.Index, Exposed { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
+                | CellState.Flagged -> (c.Coords.Index, Flagged { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
 
-            let cells = game.Cells |> Array.map getSolutionCell
+            let cells = game.Cells |> Map.toSeq |> Seq.map snd |> Seq.map getSolutionCell |> Map.ofSeq
             let state = 
                 match game.State with
                 | GameState.Win -> Win
@@ -60,7 +60,9 @@ module Utilities =
         | _ -> None
 
     let getCellsOfType typeMatcher solution =
-        solution.Cells |> Seq.choose typeMatcher
+        solution.Cells |> Map.toSeq |> Seq.map snd |> Seq.choose typeMatcher
+
+    let solutionCellsOfSeq solution = solution.Cells |> Map.toSeq |> Seq.map snd
 
     let getFlaggedCells = getCellsOfType getFlaggedCell
     let getHiddenCells = getCellsOfType getHiddenCell
