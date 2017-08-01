@@ -23,7 +23,8 @@ type Game = {
     Height: int;
     MineLocations: Set<int> option;
     MineCount: int;
-    Randoms: int[];
+    Seed: int;
+    Random: System.Random;
 };
 
 let surroundingOffsets = 
@@ -58,7 +59,7 @@ let getSurroundingCount (mineLocations:Set<int>) gameWidth gameHeight (cell:Cell
     |> Seq.filter (fun coords -> Set.contains coords.Index mineLocations)
     |> Seq.length
 
-let createGame width height mineCount randoms =
+let createGame width height mineCount seed =
     let initCell index = {
         State = Hidden;
         Coords = { Index = index;
@@ -82,7 +83,8 @@ let createGame width height mineCount randoms =
         Height = height;
         MineLocations = None;
         MineCount = mineCount;
-        Randoms = randoms;
+        Seed = seed;
+        Random = new System.Random(seed);
     }
 
 let createImpossibleSimpleGame<'a> = createGame 1 1 1
@@ -101,7 +103,7 @@ let placeMines (game:Game) lastSelectedIndex =
     let maxIndex = game.Width * game.Height
     
     let mineLocations =
-        Seq.initInfinite  (fun i -> game.Randoms.[i % game.Randoms.Length] % (maxIndex))
+        Seq.initInfinite  (fun i -> game.Random.Next(maxIndex))
         |> Seq.distinct
         //omit the first cell
         |> Seq.filter (fun c -> c <> lastSelectedIndex)

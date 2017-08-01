@@ -1,13 +1,11 @@
 ﻿open Minesweeper
 open Common.Solvers
-open Common.Utilities
 open RandomSolver
 open ProbabilitySolver
 
+let rand = new System.Random()
 let createGame i = 
-    let rand = new System.Random()
-    let randoms = ([0..1000] |> List.map (fun _ -> rand.Next()) |> Array.ofList)
-    (createEasyGame randoms, i)
+    (createEasyGame (rand.Next()), i)
 
 let testCases = 10000
 let games = [0..(testCases - 1)] |> Seq.map createGame

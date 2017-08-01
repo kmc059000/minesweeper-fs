@@ -95,6 +95,5 @@ let gameloop randomNumbers =
 [<EntryPoint>]
 let main argv =
     let rand = new System.Random()
-    let randomNumbers = [0..1000] |> List.map (fun _ -> rand.Next()) |> Array.ofList
-    let game = gameloop randomNumbers
+    let game = gameloop (rand.Next())
     0
