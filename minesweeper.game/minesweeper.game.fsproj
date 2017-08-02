@@ -51,6 +51,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Coordinates.fs" />
     <Compile Include="Cell.fs" />
     <Compile Include="Minesweeper.fs" />
     <Compile Include="Commands.fs" />

@@ -1,7 +1,7 @@
 ﻿module Minesweeper
 
+open Coordinates
 open Cells
-open Cells.Coordinates
 open Cells.Cells
 
 type GameState = Start | Playing | Win | Dead | Quit | Exit
@@ -20,15 +20,6 @@ type Game = {
 
 let getCell game coords =
     game.Cells.[coords]
-
-
-let getValidSurroundingIndexesForCell gameSize cell =
-    getValidSurroundingIndexes cell.Coords
-
-let getSurroundingCount (mineLocations:Set<int>) gameSize (cell:Cell) =
-    getValidSurroundingIndexesForCell gameSize cell
-    |> Seq.filter (fun coords -> Set.contains coords.Index mineLocations)
-    |> Seq.length
 
 let createGame width height mineCount seed =
     let gameSize = { Width = width; Height = height; }
@@ -69,7 +60,7 @@ let tryPlaceMine mineLocations cell =
     { cell with IsMine = Set.contains cell.Coords.Index mineLocations }
 
 let setSurroundingCount game mineLocations cell =
-    { cell with SurroundingCount = Some (getSurroundingCount mineLocations game.GameSize cell) }
+    { cell with SurroundingCount = Some (getSurroundingCount mineLocations cell) }
 
 let placeMines game lastSelectedIndex = 
     let maxIndex = game.GameSize.Width * game.GameSize.Height

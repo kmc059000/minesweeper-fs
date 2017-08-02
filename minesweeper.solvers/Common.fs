@@ -1,5 +1,6 @@
 ﻿module Common
 
+open Coordinates
 open Cells
 open Minesweeper
 
@@ -70,7 +71,7 @@ module Utilities =
     let getExposedCells = getCellsOfType getExposedCell
 
     let getNeighborsOfType typeMatcher solution coords =
-        getValidSurroundingIndexes solution.Game.GameSize coords
+        Coordinates.getValidSurroundingIndexes coords
         |> Seq.map (fun n -> solution.Cells.[n.Index])
         |> Seq.choose typeMatcher
                 
