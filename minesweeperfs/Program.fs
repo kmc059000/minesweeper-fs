@@ -8,7 +8,7 @@ open Commands.Move
 
 let debug = false
 
-let getCellChar (game:Game) (cell:Cell) =
+let getCellChar game cell =
     let exposedChar = 
         match cell.IsMine with
             | true -> "*"
@@ -29,7 +29,7 @@ let getCellChar (game:Game) (cell:Cell) =
         | (Exposed, _) ->  exposedChar
         | (Flagged, _) -> "?"
 
-let getRowText (game:Game) (row:Cell[]) = 
+let getRowText game row = 
     let rowText = row |> Array.map (getCellChar game) |> String.concat " "
     "║" + rowText + "║"
 
@@ -42,14 +42,14 @@ let getRowsText game =
         |> Array.map (getRowText game)
         |> String.concat "\r\n"
 
-let getHeader (game:Game) left right = 
+let getHeader game left right = 
     let inside =
         [0..(game.GameSize.Width - 2)]
         |> Seq.map (fun x -> "══")
         |> String.concat ""
     left + inside + right 
 
-let getGameDisplay (game:Game) =
+let getGameDisplay game =
     let help = "Use arrow keys to move | Space to sweep | f to flag | q to quit"
     let headerTop = getHeader game "╔═" "╗"
     let headerBottom = getHeader game "╚═" "╝"
@@ -66,7 +66,7 @@ let getGameDisplay (game:Game) =
 
     sprintf "F# Minesweeper\r\n%s\r\n%s \r\n%s \r\n%s \r\n\r\n%s" help headerTop rows headerBottom stateMessage
 
-let processMove (game:Game) key = 
+let processMove game key = 
     match key with
     | System.ConsoleKey.LeftArrow -> moveLeft game
     | System.ConsoleKey.RightArrow -> moveRight game
