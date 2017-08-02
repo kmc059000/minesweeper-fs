@@ -54,7 +54,6 @@
     <Compile Include="Coordinates.fs" />
     <Compile Include="Cell.fs" />
     <Compile Include="Games.fs" />
-    <Compile Include="Minesweeper.fs" />
     <Compile Include="Commands.fs" />
     <Content Include="packages.config" />
   </ItemGroup>

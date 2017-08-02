@@ -21,5 +21,5 @@ module Cells =
         |> Seq.length
 
     let withSurroundingCount mineLocations cell =
-    { cell with SurroundingCount = Some (getSurroundingCount mineLocations cell) }
+        { cell with SurroundingCount = Some (getSurroundingCount mineLocations cell) }
 

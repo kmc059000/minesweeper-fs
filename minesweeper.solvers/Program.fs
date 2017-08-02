@@ -1,5 +1,4 @@
 ﻿open Games
-open Minesweeper
 open Common.Solvers
 open RandomSolver
 open ProbabilitySolver

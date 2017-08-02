@@ -1,6 +1,5 @@
 ﻿module RandomSolver
 
-open Minesweeper
 open Commands.Sweep
 open Common.Solvers
 open Common.Utilities

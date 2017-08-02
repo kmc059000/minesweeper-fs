@@ -3,7 +3,6 @@
 open Coordinates
 open Cells
 open Games
-open Minesweeper
 
     module Common =        
         let setGameCellState index state (game:Game) =
@@ -41,10 +40,10 @@ open Minesweeper
         let sweep (game:Game) (x:int) (y:int) = 
             let index = Coordinates.getArrayIndex x y game.GameSize
             game 
-                |> tryPlaceMines index
+                |> Game.tryPlaceMines index
                 |> sweepCells [index]
-                |> testWin
-                |> testLoss index
+                |> Game.testWin
+                |> Game.testLoss index
 
     module Flag =
         let flag (game:Game) (x:int) (y:int) = 

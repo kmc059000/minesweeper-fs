@@ -1,6 +1,5 @@
 ﻿module ProbabilitySolver
 
-open Minesweeper
 open Common.Solvers
 open Common.Utilities
 

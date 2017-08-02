@@ -2,7 +2,6 @@
 
 open Cells
 open Games
-open Minesweeper
 open Commands.Sweep
 open Commands.Flag
 open Commands.Move
