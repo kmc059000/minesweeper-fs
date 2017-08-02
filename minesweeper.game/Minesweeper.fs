@@ -18,26 +18,12 @@ type Game = {
     Random: System.Random;
 };
 
-
-let getArrayIndex x y gameSize = x + y * gameSize.Width
-
-let getIndexOfOffset (coords:Coordinate) (offset:int*int) =
-    let (dx, dy) = offset
-    let x = coords.X + dx
-    let y = coords.Y + dy
-    {coords with X = x; Y = y; Index = (getArrayIndex x y coords.GameSize)}
-
-
 let getCell game coords =
     game.Cells.[coords]
 
-let getValidSurroundingIndexes gameSize coords =
-    surroundingOffsets
-    |> Seq.map (getIndexOfOffset coords)
-    |> Seq.filter Coordinates.isValid
 
 let getValidSurroundingIndexesForCell gameSize cell =
-    getValidSurroundingIndexes gameSize cell.Coords
+    getValidSurroundingIndexes cell.Coords
 
 let getSurroundingCount (mineLocations:Set<int>) gameSize (cell:Cell) =
     getValidSurroundingIndexesForCell gameSize cell
