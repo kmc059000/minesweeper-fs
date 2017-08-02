@@ -21,22 +21,22 @@ type Game = {
 
 let getArrayIndex x y gameSize = x + y * gameSize.Width
 
-let getIndexOfOffset (coords:Coordinate) (gameSize: GameSize) (offset:int*int) =
+let getIndexOfOffset (coords:Coordinate) (offset:int*int) =
     let (dx, dy) = offset
     let x = coords.X + dx
     let y = coords.Y + dy
-    {coords with X = x; Y = y; Index = (getArrayIndex x y gameSize)}
+    {coords with X = x; Y = y; Index = (getArrayIndex x y coords.GameSize)}
 
-let isValidCell gameSize coords =
-    if coords.X >= 0 && coords.X < gameSize.Width && coords.Y >= 0 && coords.Y < gameSize.Height then true else false
+let isValidCell coords =
+    if coords.X >= 0 && coords.X < coords.GameSize.Width && coords.Y >= 0 && coords.Y < coords.GameSize.Height then true else false
 
 let getCell game coords =
     game.Cells.[coords]
 
 let getValidSurroundingIndexes gameSize coords =
     surroundingOffsets
-    |> Seq.map (getIndexOfOffset coords gameSize)
-    |> Seq.filter (isValidCell gameSize)
+    |> Seq.map (getIndexOfOffset coords)
+    |> Seq.filter isValidCell
 
 let getValidSurroundingIndexesForCell gameSize cell =
     getValidSurroundingIndexes gameSize cell.Coords
