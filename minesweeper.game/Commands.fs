@@ -1,4 +1,4 @@
-﻿module Commands
+﻿namespace Commands
 
 open Coordinates
 open Cells
