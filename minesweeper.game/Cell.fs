@@ -22,6 +22,9 @@ module Coordinates =
     let create x y index size = 
         { X = x; Y = y; Index = index; GameSize = size; }
 
+    
+    let isValid coords =
+        if coords.X >= 0 && coords.X < coords.GameSize.Width && coords.Y >= 0 && coords.Y < coords.GameSize.Height then true else false
 
    
 module Cells =

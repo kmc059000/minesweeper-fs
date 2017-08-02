@@ -53,7 +53,7 @@ open Minesweeper
     module Move =
         let move x y game =
             let newPosition = getIndexOfOffset game.CursorPosition (x, y)
-            match (isValidCell newPosition) with
+            match (Coordinates.isValid newPosition) with
             | true -> { game with CursorPosition = newPosition; }
             | false -> game
             
