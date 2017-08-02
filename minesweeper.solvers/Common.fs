@@ -2,6 +2,7 @@
 
 open Coordinates
 open Cells
+open Games
 open Minesweeper
 
     module Solvers = 

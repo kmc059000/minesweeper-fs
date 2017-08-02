@@ -1,6 +1,7 @@
 ﻿module Program
 
 open Cells
+open Games
 open Minesweeper
 open Commands.Sweep
 open Commands.Flag
@@ -79,7 +80,7 @@ let processMove (game:Game) key =
 
 //unpure method
 let gameloop randomNumbers =
-    let mutable game = createEasyGame randomNumbers
+    let mutable game = GameFactory.createEasyGame randomNumbers
     while game.State <> GameState.Exit && game.State <> GameState.Quit do
         //print UI
         System.Console.SetCursorPosition(0,0)
