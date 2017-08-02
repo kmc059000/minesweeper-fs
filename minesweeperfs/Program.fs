@@ -1,5 +1,6 @@
 ﻿module Program
 
+open Cells
 open Minesweeper
 open Commands.Sweep
 open Commands.Flag

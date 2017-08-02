@@ -1,22 +1,14 @@
 ﻿module Minesweeper
 
+open Cells
+open Cells.Coordinates
+open Cells.Cells
+
 type GameState = Start | Playing | Win | Dead | Quit | Exit
 
-type CellCoords = {
-    X: int;
-    Y: int;
-    Index: int;
-};
-type CellState = Hidden | Exposed | Flagged
-type Cell = {
-    State: CellState;
-    Coords: CellCoords;
-    IsMine: bool;
-    SurroundingCount: int option;
-};
 
 type Game = {
-    CursorPosition: CellCoords;
+    CursorPosition: Coordinate;
     Cells: Map<int, Cell>;
     State: GameState;
     Width: int;
@@ -34,7 +26,7 @@ let surroundingOffsets =
 
 let getArrayIndex x y width = x + y * width
 
-let getIndexOfOffset (coords:CellCoords) gameWidth (offset:int*int) =
+let getIndexOfOffset (coords:Coordinate) gameWidth (offset:int*int) =
     let (dx, dy) = offset
     let x = coords.X + dx
     let y = coords.Y + dy

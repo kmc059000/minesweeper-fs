@@ -1,10 +1,11 @@
 ﻿module Common
 
+open Cells
 open Minesweeper
 
     module Solvers = 
-        type HiddenCell = { Coords: CellCoords; }
-        type ExposedCell = { Coords: CellCoords; SurroundingCount: int; }
+        type HiddenCell = { Coords: Coordinate; }
+        type ExposedCell = { Coords: Coordinate; SurroundingCount: int; }
 
         type VisibleCell = 
             | Hidden of HiddenCell

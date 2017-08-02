@@ -1,6 +1,8 @@
 ﻿module Commands
 
+open Cells
 open Minesweeper
+
     module Common =        
         let setGameCellState index state (game:Game) =
             let cell = game.Cells.[index]
