@@ -11,52 +11,49 @@ type Game = {
     CursorPosition: Coordinate;
     Cells: Map<int, Cell>;
     State: GameState;
-    Width: int;
-    Height: int;
+    GameSize: GameSize;
     MineLocations: Set<int> option;
     MineCount: int;
     Seed: int;
     Random: System.Random;
 };
 
-let surroundingOffsets = 
-    [(-1, -1);   (0, -1);  (1, -1);
-     (-1,  0); (*(0, 0);*) (1, 0);
-     (-1,  1);   (0, 1);   (1, 1);]
 
-let getArrayIndex x y width = x + y * width
+let getArrayIndex x y gameSize = x + y * gameSize.Width
 
-let getIndexOfOffset (coords:Coordinate) gameWidth (offset:int*int) =
+let getIndexOfOffset (coords:Coordinate) (gameSize: GameSize) (offset:int*int) =
     let (dx, dy) = offset
     let x = coords.X + dx
     let y = coords.Y + dy
-    { X = x; Y = y; Index = (getArrayIndex x y gameWidth) }
+    {coords with X = x; Y = y; Index = (getArrayIndex x y gameSize)}
 
-let isValidCell w h coords =
-    if coords.X >= 0 && coords.X < w && coords.Y >= 0 && coords.Y < h then true else false
+let isValidCell gameSize coords =
+    if coords.X >= 0 && coords.X < gameSize.Width && coords.Y >= 0 && coords.Y < gameSize.Height then true else false
 
 let getCell game coords =
     game.Cells.[coords]
 
-let getValidSurroundingIndexes gameWidth gameHeight coords =
+let getValidSurroundingIndexes gameSize coords =
     surroundingOffsets
-    |> Seq.map (getIndexOfOffset coords gameWidth)
-    |> Seq.filter (isValidCell gameWidth gameHeight)
+    |> Seq.map (getIndexOfOffset coords gameSize)
+    |> Seq.filter (isValidCell gameSize)
 
-let getValidSurroundingIndexesForCell gameWidth gameHeight cell =
-    getValidSurroundingIndexes gameWidth gameHeight cell.Coords
+let getValidSurroundingIndexesForCell gameSize cell =
+    getValidSurroundingIndexes gameSize cell.Coords
 
-let getSurroundingCount (mineLocations:Set<int>) gameWidth gameHeight (cell:Cell) =
-    getValidSurroundingIndexesForCell gameWidth gameHeight cell
+let getSurroundingCount (mineLocations:Set<int>) gameSize (cell:Cell) =
+    getValidSurroundingIndexesForCell gameSize cell
     |> Seq.filter (fun coords -> Set.contains coords.Index mineLocations)
     |> Seq.length
 
 let createGame width height mineCount seed =
+    let gameSize = { Width = width; Height = height; }
     let initCell index = {
         State = Hidden;
         Coords = { Index = index;
-            X = index % width;
-            Y = index / width;
+            X = index % gameSize.Width;
+            Y = index / gameSize.Width;
+            GameSize = gameSize;
         };        
         IsMine = false;
         SurroundingCount = None;
@@ -68,11 +65,10 @@ let createGame width height mineCount seed =
         |> Seq.map (fun c -> (c.Coords.Index,c))
         |> Map.ofSeq
     {
-        CursorPosition = { X= 0; Y = 0; Index = 0; }
+        CursorPosition = { X= 0; Y = 0; Index = 0; GameSize = gameSize; }
         Cells = cells;
         State = GameState.Start;
-        Width = width;
-        Height = height;
+        GameSize = gameSize;
         MineLocations = None;
         MineCount = mineCount;
         Seed = seed;
@@ -89,10 +85,10 @@ let tryPlaceMine mineLocations cell =
     { cell with IsMine = Set.contains cell.Coords.Index mineLocations }
 
 let setSurroundingCount game mineLocations cell =
-    { cell with SurroundingCount = Some (getSurroundingCount mineLocations game.Width game.Height cell) }
+    { cell with SurroundingCount = Some (getSurroundingCount mineLocations game.GameSize cell) }
 
-let placeMines (game:Game) lastSelectedIndex = 
-    let maxIndex = game.Width * game.Height
+let placeMines game lastSelectedIndex = 
+    let maxIndex = game.GameSize.Width * game.GameSize.Height
     
     let mineLocations =
         Seq.initInfinite  (fun i -> game.Random.Next(maxIndex))

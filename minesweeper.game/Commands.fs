@@ -14,7 +14,7 @@ open Minesweeper
             let cell = game.Cells.[index]
             match cell.State with
             | Hidden-> 
-                getValidSurroundingIndexes game.Width game.Height cell.Coords
+                getValidSurroundingIndexes game.GameSize cell.Coords
                     |> Seq.map (fun c -> c.Index)
                     |> Seq.map (getCell game)
                     |> Seq.filter (fun x -> x.IsMine = false)
@@ -37,7 +37,7 @@ open Minesweeper
 
 
         let sweep (game:Game) (x:int) (y:int) = 
-            let index = getArrayIndex x y game.Width
+            let index = getArrayIndex x y game.GameSize
             game 
                 |> tryPlaceMines index
                 |> sweepCells [index]
@@ -46,14 +46,14 @@ open Minesweeper
 
     module Flag =
         let flag (game:Game) (x:int) (y:int) = 
-            let index = getArrayIndex x y game.Width
+            let index = getArrayIndex x y game.GameSize
             game |> Common.setGameCellState index Flagged
 
 
     module Move =
         let move x y game =
-            let newPosition = getIndexOfOffset game.CursorPosition game.Width (x, y)
-            match (isValidCell game.Width game.Height newPosition) with
+            let newPosition = getIndexOfOffset game.CursorPosition game.GameSize (x, y)
+            match (isValidCell game.GameSize newPosition) with
             | true -> { game with CursorPosition = newPosition; }
             | false -> game
             

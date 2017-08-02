@@ -70,7 +70,7 @@ module Utilities =
     let getExposedCells = getCellsOfType getExposedCell
 
     let getNeighborsOfType typeMatcher solution coords =
-        getValidSurroundingIndexes solution.Game.Width solution.Game.Height coords
+        getValidSurroundingIndexes solution.Game.GameSize coords
         |> Seq.map (fun n -> solution.Cells.[n.Index])
         |> Seq.choose typeMatcher
                 

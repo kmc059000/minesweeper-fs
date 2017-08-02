@@ -38,13 +38,13 @@ let getRowsText game =
         |> Map.toArray
         |> Array.map snd
         |> Array.sortBy (fun c -> c.Coords.Index)
-        |> Array.chunkBySize game.Width
+        |> Array.chunkBySize game.GameSize.Width
         |> Array.map (getRowText game)
         |> String.concat "\r\n"
 
 let getHeader (game:Game) left right = 
     let inside =
-        [0..(game.Width - 2)]
+        [0..(game.GameSize.Width - 2)]
         |> Seq.map (fun x -> "══")
         |> String.concat ""
     left + inside + right 
