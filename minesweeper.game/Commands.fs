@@ -5,7 +5,7 @@ open Cells
 open Games
 
     module Common =        
-        let setGameCellState index state (game:Game) =
+        let setGameCellState index state game =
             let cell = game.Cells.[index]
             let newCells = game.Cells |> Map.add index { cell with State = state; }
             { game with Cells = newCells}
@@ -37,7 +37,7 @@ open Games
                 newGame |> sweepCells surrounding |> sweepCells xs
 
 
-        let sweep (game:Game) (x:int) (y:int) = 
+        let sweep game x y = 
             let index = Coordinates.getArrayIndex x y game.GameSize
             game 
                 |> Game.tryPlaceMines index
@@ -46,7 +46,7 @@ open Games
                 |> Game.testLoss index
 
     module Flag =
-        let flag (game:Game) (x:int) (y:int) = 
+        let flag game x y = 
             let index = Coordinates.getArrayIndex x y game.GameSize
             game |> Common.setGameCellState index Flagged
 

@@ -51,20 +51,20 @@ module Game =
         | GameState.Start -> placeMines game lastSelectedIndex
         | _ -> game
 
-    let isWin (cells:Map<int, Cell>) = 
+    let isWin cells = 
         cells
         |> Map.toSeq
         |> Seq.map snd
         |> Seq.exists (fun x -> not x.IsMine && x.State <> CellState.Exposed)
         |> not
 
-    let testWin (game:Game) =
+    let testWin game =
         let isWin = isWin game.Cells
         match isWin with
         | true -> { game with State = Win }
         | false -> game
 
-    let testLoss index (game:Game) = 
+    let testLoss index game = 
         let cell = game.Cells.[index]
         match cell.IsMine with
         | true -> { game with State = GameState.Dead; }

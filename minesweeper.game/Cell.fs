@@ -16,7 +16,8 @@ module Cells =
         { State = state; Coords = coords; IsMine = isMine; SurroundingCount = surroundingCount };
         
     let getSurroundingCount mineLocations cell =
-        Coordinates.getValidSurroundingIndexes cell.Coords
+        cell.Coords
+        |> Coordinates.getValidSurroundingIndexes
         |> Seq.filter (fun coords -> Set.contains coords.Index mineLocations)
         |> Seq.length
 

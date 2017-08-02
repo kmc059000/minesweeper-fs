@@ -21,11 +21,12 @@ module Coordinates =
 
     
     let isValid coords =
-        if coords.X >= 0 && coords.X < coords.GameSize.Width && coords.Y >= 0 && coords.Y < coords.GameSize.Height then true else false
+        let inRange x max = x >= 0 && x < max
+        if (inRange coords.X coords.GameSize.Width) && (inRange coords.Y coords.GameSize.Height) then true else false
 
     let getArrayIndex x y gameSize = x + y * gameSize.Width
 
-    let getOffsetIndex (coords:Coordinate) (offset:int*int) =
+    let getOffsetIndex coords offset =
         let (dx, dy) = offset
         let x = coords.X + dx
         let y = coords.Y + dy
