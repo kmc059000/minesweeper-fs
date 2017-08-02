@@ -11,8 +11,6 @@ open Games
 let tryPlaceMine mineLocations cell =
     { cell with IsMine = Set.contains cell.Coords.Index mineLocations }
 
-let setSurroundingCount game mineLocations cell =
-    { cell with SurroundingCount = Some (getSurroundingCount mineLocations cell) }
 
 let placeMines game lastSelectedIndex = 
     let maxIndex = game.GameSize.Width * game.GameSize.Height
@@ -30,7 +28,7 @@ let placeMines game lastSelectedIndex =
         |> Map.toSeq
         |> Seq.map snd
         |> Seq.map (tryPlaceMine mineLocations)
-        |> Seq.map (setSurroundingCount game mineLocations)
+        |> Seq.map (Cells.withSurroundingCount mineLocations)
         |> Seq.map (fun c -> (c.Coords.Index,c))
         |> Map.ofSeq
        

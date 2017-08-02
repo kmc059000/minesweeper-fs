@@ -20,3 +20,6 @@ module Cells =
         |> Seq.filter (fun coords -> Set.contains coords.Index mineLocations)
         |> Seq.length
 
+    let withSurroundingCount mineLocations cell =
+    { cell with SurroundingCount = Some (getSurroundingCount mineLocations cell) }
+
