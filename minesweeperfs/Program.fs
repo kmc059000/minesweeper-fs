@@ -13,6 +13,24 @@ open MinesweeperUI
 
 //debug <- true
 
+let rec requestGameSize _ = 
+    System.Console.WriteLine("What difficulty would you like to play? (type the number)")
+    System.Console.WriteLine("1 - Easy")
+    System.Console.WriteLine("2 - Medium")
+    System.Console.WriteLine("3 - Hard")
+    System.Console.WriteLine("")
+    let difficulty = System.Console.ReadLine()
+    match difficulty with
+    | "1" -> GameFactory.createEasyGame
+    | "2" -> GameFactory.createMediumGame
+    | "3" -> GameFactory.createHardGame
+    | _ -> 
+        System.Console.Clear()
+        System.Console.WriteLine("Unknown difficulty: " + difficulty)
+        requestGameSize ()
+
+
+
 let printGame previousDisplay game =
     let newDisplay = getGameDisplay game
     printConsoleText ConsoleCoords.origin previousDisplay newDisplay
@@ -32,9 +50,12 @@ let getAction (cursor:Coordinates.Coordinate) key =
     | _ -> id
 
 //unpure method
-let gameloop randomNumbers =
+let gameloop seed =
+    let gameFactory = requestGameSize ()
+    System.Console.Clear()
     let mutable console = ConsoleText.emptyUI
-    let mutable game = GameFactory.createMediumGame randomNumbers
+
+    let mutable game = gameFactory seed
 
     while game.State <> GameState.Exit && game.State <> GameState.Quit do
         console <- printGame console game
