@@ -12,7 +12,7 @@ open Common.Utilities
             | _ -> 
                 let sweepableCells = getHiddenCells solution |> Array.ofSeq
                 let cellToSweep = sweepableCells.[rand.Next(sweepableCells.Length)]
-                let game = sweep solution.Game cellToSweep.Coords.X cellToSweep.Coords.Y
+                let game = solution.Game |> sweep cellToSweep.Coords.X cellToSweep.Coords.Y
                 let newSolution = getSolutionFromGame game
                 solveRandomly newSolution
 

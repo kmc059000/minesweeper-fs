@@ -83,12 +83,13 @@ module Utilities =
         match cells with
         | [] -> game
         | x::xs ->
-            sweep game x.Coords.X x.Coords.Y
+            game
+            |> sweep x.Coords.X x.Coords.Y
             |> sweepAll xs
         
     let rec flagAll (cells:HiddenCell list) game =
         match cells with
         | [] -> game
         | x::xs ->
-            flag game x.Coords.X x.Coords.Y
+            game |> flag x.Coords.X x.Coords.Y
             |> flagAll xs

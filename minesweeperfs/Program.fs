@@ -6,6 +6,7 @@ open Games
 open Commands.Sweep
 open Commands.Flag
 open Commands.Move
+open Commands.Quit
 
 open ConsolePrinting
 open MinesweeperUI
@@ -17,16 +18,18 @@ let printGame previousDisplay game =
     printConsoleText ConsoleCoords.origin previousDisplay newDisplay
     newDisplay
 
-let processMove game key = 
+let getAction (cursor:Coordinates.Coordinate) key =
+    let x = cursor.X
+    let y = cursor.Y
     match key with
-    | System.ConsoleKey.LeftArrow -> moveLeft game
-    | System.ConsoleKey.RightArrow -> moveRight game
-    | System.ConsoleKey.UpArrow -> moveUp game
-    | System.ConsoleKey.DownArrow -> moveDown game
-    | System.ConsoleKey.Q -> { game with State = GameState.Quit }
-    | System.ConsoleKey.Spacebar -> sweep game game.CursorPosition.X game.CursorPosition.Y
-    | System.ConsoleKey.F -> flag game game.CursorPosition.X game.CursorPosition.Y
-    | _ -> game
+    | System.ConsoleKey.LeftArrow -> moveLeft
+    | System.ConsoleKey.RightArrow -> moveRight
+    | System.ConsoleKey.UpArrow -> moveUp
+    | System.ConsoleKey.DownArrow -> moveDown
+    | System.ConsoleKey.Q -> quit
+    | System.ConsoleKey.Spacebar -> sweep x y
+    | System.ConsoleKey.F -> flag x y
+    | _ -> id
 
 //unpure method
 let gameloop randomNumbers =
@@ -35,7 +38,9 @@ let gameloop randomNumbers =
 
     while game.State <> GameState.Exit && game.State <> GameState.Quit do
         console <- printGame console game
-        game <- System.Console.ReadKey().Key |> processMove game
+        let key = System.Console.ReadKey().Key
+        let handleAction = getAction game.CursorPosition key
+        game <- handleAction game
     
 
 [<EntryPoint>]

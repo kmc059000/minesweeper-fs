@@ -37,7 +37,7 @@ open Games
                 newGame |> sweepCells surrounding |> sweepCells xs
 
 
-        let sweep game x y = 
+        let sweep x y game = 
             let index = Coordinates.getArrayIndex x y game.GameSize
             game 
                 |> Game.tryPlaceMines index
@@ -46,7 +46,7 @@ open Games
                 |> Game.testLoss index
 
     module Flag =
-        let flag game x y = 
+        let flag x y game = 
             let index = Coordinates.getArrayIndex x y game.GameSize
             game |> Common.setGameCellState index Flagged
 
@@ -62,3 +62,7 @@ open Games
         let moveRight = move 1 0 
         let moveUp = move 0 -1
         let moveDown = move 0 1
+
+    module Quit = 
+        let quit game = { game with State = GameState.Quit }
+            
