@@ -2,7 +2,6 @@
 
 open System
 
-open Cells
 open Games
 open Commands.Sweep
 open Commands.Flag
@@ -13,11 +12,9 @@ open MinesweeperUI
 
 //debug <- true
 
-
 let printGame previousDisplay game =
-    let printGame = printConsoleText ConsoleCoords.origin
     let newDisplay = getGameDisplay game
-    printGame previousDisplay newDisplay
+    printConsoleText ConsoleCoords.origin previousDisplay newDisplay
     newDisplay
 
 let processMove game key = 
