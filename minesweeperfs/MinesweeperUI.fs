@@ -64,39 +64,39 @@ let private getRowsText game =
         |> List.chunkBySize game.GameSize.Width
         |> List.map (getRowText game)
 
-let private getHeader game left right = 
+let private getGameBorder left right game = 
     let inside =
         [0..(game.GameSize.Width - 2)]
         |> Seq.map (fun x -> "══")
         |> String.concat ""
     left + inside + right 
 
+let private getGameTop = getGameBorder "╔═" "═╗"
+let private getGameBottom = getGameBorder "╚═" "═╝"
 
-let getGameDisplay game =
-    let help = "Use arrow keys to move | Space to sweep | f to flag | q to quit"
-    let headerTop = getHeader game "╔═" "═╗"
-    let headerBottom = getHeader game "╚═" "═╝"
-    let rows = getRowsText game |> List.collect id
-    let stateMessage = 
-        match game.State with
-        | Start | Playing | Exit -> ""
-        | Win -> 
-            "You won!"
-        | Dead -> 
-            "You have exploded! :("
-        | Quit -> 
-            "Quitter!"
+let private getGameMessage game =
+    match game.State with
+    | Start | Playing | Exit -> ""
+    | Win -> 
+        "You won!"
+    | Dead -> 
+        "You have exploded! :("
+    | Quit -> 
+        "Quitter!"
+
+let getGameDisplay game = 
+    let rows = game |> getRowsText |> List.collect id        
 
     let top = [
         defaultText "F# Minesweeper\r\n";
-        defaultText help;
+        defaultText "Use arrow keys to move | Space to sweep | f to flag | q to quit";
         defaultText "\r\n";
-        defaultText headerTop;
+        defaultText (getGameTop game);
         defaultText "\r\n";
     ]
     let bottom = [
-        defaultText headerBottom;
+        defaultText (getGameBottom game);
         defaultText "\r\n\r\n";
-        defaultText stateMessage;
+        defaultText (getGameMessage game);
     ]
     (top @ rows @ bottom) |> ConsoleText.withCoords ConsoleCoords.origin
