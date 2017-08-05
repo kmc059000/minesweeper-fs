@@ -7,40 +7,53 @@ open Games
 
 let mutable debug = false
 
-let defaultText text = (text, ConsoleColor.Green)
+let private defaultText text = (text, ConsoleColor.Green)
+
+let private emptyText = defaultText " "
+let private mineText = ("*", ConsoleColor.Red)
+let private cursorText = ("@", ConsoleColor.Green)
+let private flagText = ("?", ConsoleColor.Magenta)
+let private hiddenCellText = ("·", ConsoleColor.White)
+let private hiddenCellDebugText = ("H", ConsoleColor.White)
+
+let private hiddenCell cell =
+    match debug, cell.IsMine with
+    | true,true -> mineText
+    | true, false -> hiddenCellDebugText
+    | false, _ -> hiddenCellText
+
+let private getExposedCharText cell =
+    match cell.IsMine with
+    | true -> mineText
+    | false ->
+        match cell.SurroundingCount with
+        | None | Some 0 -> emptyText
+        | Some i -> 
+            let color = 
+                match i with
+                | 1 -> ConsoleColor.Cyan
+                | 2 -> ConsoleColor.DarkCyan
+                | 3 -> ConsoleColor.Yellow
+                | 4 -> ConsoleColor.DarkRed
+                | _ -> ConsoleColor.Red
+            (i.ToString(), color)
 
 let private getCellChar game cell =
-    let mine = ("*", ConsoleColor.Red)
-    let exposedChar = 
-        match cell.IsMine with
-            | true -> mine
-            | false ->
-                match cell.SurroundingCount with
-                | None 
-                | Some 0 -> defaultText " "
-                | Some i -> 
-                    let color = 
-                        match i with
-                        | 1 -> ConsoleColor.Cyan
-                        | 2 -> ConsoleColor.DarkCyan
-                        | 3 -> ConsoleColor.Yellow
-                        | 4 -> ConsoleColor.DarkRed
-                        | _ -> ConsoleColor.Red
-                    (i.ToString(), color)
+    let exposedChar = lazy (getExposedCharText cell)
     match game.CursorPosition = cell.Coords with
-    | true -> ("@", ConsoleColor.Green)
+    | true -> cursorText
     | false ->
         match (cell.State, game.State) with
-        | (_, Dead) -> exposedChar
-        | (Hidden, _) -> 
-            match debug with
-            | true -> if cell.IsMine then mine else ("H", ConsoleColor.White)
-            | false -> ("·", ConsoleColor.White)
-        | (Exposed, _) ->  exposedChar
-        | (Flagged, _) -> ("?", ConsoleColor.Magenta)
+        | (_, Dead) 
+        | (Exposed, _) ->  exposedChar.Value
+        | (Hidden, _) -> hiddenCell cell            
+        | (Flagged, _) -> flagText
 
 let private getRowText game row = 
-    let inner = row |> List.map (getCellChar game) |> List.map (fun (text, color) -> (text + " ", color))
+    let inner = 
+        row 
+        |> List.map (getCellChar game) 
+        |> List.map (fun (text, color) -> (text + " ", color))
     [("║", ConsoleColor.Green)] @ inner @ [("║\r\n", ConsoleColor.Green)]
 
 let private getRowsText game =
