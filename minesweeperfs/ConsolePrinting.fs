@@ -12,6 +12,8 @@ type ConsoleText = { Text: string; Color: ConsoleColor; Coords: ConsoleCoords}
         let origin = create 0 0
 
     module ConsoleText =
+        let emptyUI = List.empty<ConsoleText>
+
         let private isNewLine s = s = '\n'
 
         let private  newLineCount s = s |> String.filter isNewLine |> String.length
@@ -42,15 +44,16 @@ let private pringConsoleText next =
     System.Console.ForegroundColor <- next.Color
     printf "%s" next.Text
 
-let rec printConsoleText prevRows newRows lastPos =
+let rec printConsoleText lastPos prevRows newRows =
     match prevRows,newRows with
-    | [],[] -> lastPos
+    | [],[] -> 
+        System.Console.SetCursorPosition(lastPos.X, lastPos.Y)
     | [], next::nexts -> 
         pringConsoleText next
-        printConsoleText [] nexts next.Coords
+        printConsoleText next.Coords [] nexts 
     | prev::prevs, next::nexts ->
         match prev = next with
         | true -> ()
         | false -> pringConsoleText next
-        printConsoleText prevs nexts next.Coords
+        printConsoleText next.Coords prevs nexts
     | _,[] -> failwith "Previous is longer than next."
