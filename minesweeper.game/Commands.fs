@@ -64,5 +64,5 @@ open Games
         let moveDown = move 0 1
 
     module Quit = 
-        let quit game = { game with State = GameState.Quit }
+        let quit game : Game = { game with State = GameState.Quit }
             
