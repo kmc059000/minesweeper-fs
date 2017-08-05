@@ -8,6 +8,7 @@ open Commands.Sweep
 open Commands.Flag
 open Commands.Move
 
+open ConsolePrinting
 
 let debug = false
 
@@ -54,7 +55,6 @@ let getRowsText game =
         |> List.sortBy (fun c -> c.Coords.Index)
         |> List.chunkBySize game.GameSize.Width
         |> List.map (getRowText game)
-        //|> String.concat "\r\n"
 
 let getHeader game left right = 
     let inside =
@@ -62,6 +62,7 @@ let getHeader game left right =
         |> Seq.map (fun x -> "══")
         |> String.concat ""
     left + inside + right 
+
 
 let getGameDisplay game =
     let help = "Use arrow keys to move | Space to sweep | f to flag | q to quit"
@@ -90,7 +91,7 @@ let getGameDisplay game =
         defaultText "\r\n\r\n";
         defaultText stateMessage;
     ]
-    top @ rows @ bottom
+    (top @ rows @ bottom) |> ConsoleText.withCoords ConsoleCoords.origin
 
 let processMove game key = 
     match key with
@@ -104,21 +105,19 @@ let processMove game key =
     | _ -> game
 
 
-let rec printDisplay rows =
-    match rows with
-    | [] -> ()
-    | x::xs -> 
-        System.Console.ForegroundColor <- snd x
-        printf "%s" (fst x)
-        printDisplay xs
-
 //unpure method
 let gameloop randomNumbers =
     let mutable game = GameFactory.createMediumGame randomNumbers
+    let mutable prevDisplay = List.empty
     while game.State <> GameState.Exit && game.State <> GameState.Quit do
         //print UI
-        System.Console.SetCursorPosition(0,0)
-        printDisplay (getGameDisplay game)
+        let newDisplay = getGameDisplay game
+
+        let lastPos = printConsoleText prevDisplay newDisplay ConsoleCoords.origin
+        System.Console.SetCursorPosition(lastPos.X, lastPos.Y)
+
+
+        prevDisplay <- newDisplay
 
         //get input from user
         let key = System.Console.ReadKey()
