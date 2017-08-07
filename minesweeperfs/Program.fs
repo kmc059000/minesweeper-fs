@@ -15,6 +15,28 @@ open MinesweeperUI
 
 type TopMenuResponse = PlayGame of (int -> Game) | Quit
 
+type TopMenuChoice = TopMenuChoice of string * TopMenuResponse
+type TopMenuChoices = TopMenuChoices of Map<string, TopMenuChoice>
+
+    module TopMenuChoices =
+        let tryFind key (TopMenuChoices choices) = Map.tryFind key choices
+
+        let asStrings (TopMenuChoices choices) =
+            choices
+            |> Map.toSeq
+            |> Seq.map (fun (command, (TopMenuChoice (txt, _))) -> command, command + " - " + txt)
+            |> Seq.sortBy fst
+            |> Seq.map snd
+
+let menuChoices = 
+    TopMenuChoices (
+        Map [
+            ("q", TopMenuChoice ("Quit", Quit));
+            ("1", TopMenuChoice ("Easy ",  PlayGame GameFactory.createEasyGame));
+            ("2", TopMenuChoice ("Medium",  PlayGame GameFactory.createMediumGame));
+            ("3", TopMenuChoice ("Hard",  PlayGame GameFactory.createMediumGame));
+        ])
+
 let resetColors _ = 
     Console.ForegroundColor <- ConsoleColor.Green
     Console.BackgroundColor <- ConsoleColor.Black
@@ -22,24 +44,16 @@ let resetColors _ =
 let rec requestGameSize _ = 
     resetColors()
     printfn "What difficulty would you like to play? (type the number)"
-    printfn "q - Quit"
-    printfn "1 - Easy"
-    printfn "2 - Medium"
-    printfn "3 - Hard"
-    printfn ""
+    menuChoices |> TopMenuChoices.asStrings |> Seq.iter (printfn "%s")
 
-    let difficulty = Console.ReadKey().KeyChar
+    let option = Console.ReadKey().KeyChar.ToString()
+    let difficulty = TopMenuChoices.tryFind option menuChoices
     match difficulty with
-    | '1' -> PlayGame GameFactory.createEasyGame
-    | '2' -> PlayGame GameFactory.createMediumGame
-    | '3' -> PlayGame GameFactory.createHardGame
-    | 'q' -> Quit
-    | _ ->
+    | Some (TopMenuChoice (_, resp)) -> resp
+    | None ->
         Console.Clear()
-        printfn "Unknown difficulty: %s" (difficulty.ToString())
-        requestGameSize ()
-
-
+        printfn "Unknown difficulty: %s" option
+        requestGameSize()
 
 let printGame previousDisplay game =
     let newDisplay = getGameDisplay game
