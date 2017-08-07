@@ -16,7 +16,7 @@ let private flagText =  ConsoleString.create "?" ConsoleColor.Black ConsoleColor
 let private hiddenCellText = ConsoleString.create "·" ConsoleColor.White ConsoleColor.Black
 let private hiddenCellDebugText = ConsoleString.create "H" ConsoleColor.White ConsoleColor.Black
 
-let private tryApplyBackColorOverride game cell str =
+let private tryApplyBackgroundOverride game cell str =
     let isBackgroundSet = str.Background <> ConsoleColor.Black
     let isNeighbor = Cells.isNeighbor game.CursorPosition cell 
     match isBackgroundSet, isNeighbor with
@@ -30,21 +30,20 @@ let private hiddenCell cell =
     | false, _ -> hiddenCellText
 
 let private getExposedCharText game cell =
-    match cell.IsMine with
-    | true -> mineText
-    | false ->
-        match cell.SurroundingCount with
-        | None | Some 0 -> emptyText
-        | Some i ->                
-            let color = 
-                match i with
-                | 1 -> ConsoleColor.Cyan
-                | 2 -> ConsoleColor.DarkCyan
-                | 3 -> ConsoleColor.Yellow
-                | 4 -> ConsoleColor.DarkRed
-                | _ -> ConsoleColor.Red
-            ConsoleString.create (i.ToString()) color ConsoleColor.Black
-
+    match cell.IsMine, cell.SurroundingCount with
+    | true, _ -> mineText
+    | false, None
+    | false, Some 0 -> emptyText
+    | false, Some i -> 
+        let color = 
+            match i with
+            | 1 -> ConsoleColor.Cyan
+            | 2 -> ConsoleColor.DarkCyan
+            | 3 -> ConsoleColor.Yellow
+            | 4 -> ConsoleColor.DarkRed
+            | _ -> ConsoleColor.Red
+        ConsoleString.create (i.ToString()) color ConsoleColor.Black           
+            
 let private getCellChar game cell =
     let exposedChar = lazy (getExposedCharText game cell)
     let cellChar = 
@@ -57,7 +56,7 @@ let private getCellChar game cell =
             | (Hidden, _) -> hiddenCell cell            
             | (Flagged, _) -> flagText
 
-    cellChar |> tryApplyBackColorOverride game cell 
+    cellChar |> tryApplyBackgroundOverride game cell 
         
 
 let private getRowText game row = 
