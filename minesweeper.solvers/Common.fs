@@ -23,25 +23,26 @@ open Games
         }
 
         module Solution =
+            
             let withProbability p s = { s with LastProbability = p }
 
-        let getSolutionFromGame (game:Game) =
-            let getSolutionCell (c:Cell) = 
-                match c.State with
-                | CellState.Hidden -> (c.Coords.Index, Hidden { Coords = c.Coords; })
-                | CellState.Exposed -> (c.Coords.Index, Exposed { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
-                | CellState.Flagged -> (c.Coords.Index, Flagged { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
+            let ofGame (game:Game) =
+                let getSolutionCell (c:Cell) = 
+                    match c.State with
+                    | CellState.Hidden -> (c.Coords.Index, Hidden { Coords = c.Coords; })
+                    | CellState.Exposed -> (c.Coords.Index, Exposed { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
+                    | CellState.Flagged -> (c.Coords.Index, Flagged { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
 
-            let cells = game.Cells |> Map.toSeq |> Seq.map snd |> Seq.map getSolutionCell |> Map.ofSeq
-            let state = 
-                match game.State with
-                | GameState.Win -> Win
-                | GameState.Dead -> Dead
-                | GameState.Start | GameState.Playing | _ -> Unsolved
-            { Game = game; Cells = cells; SolutionState = state; LastProbability = None }
+                let cells = game.Cells |> Map.toSeq |> Seq.map snd |> Seq.map getSolutionCell |> Map.ofSeq
+                let state = 
+                    match game.State with
+                    | GameState.Win -> Win
+                    | GameState.Dead -> Dead
+                    | GameState.Start | GameState.Playing | _ -> Unsolved
+                { Game = game; Cells = cells; SolutionState = state; LastProbability = None }
 
         let solve solver (game:Game) =
-            game |> getSolutionFromGame |> solver
+            game |> Solution.ofGame |> solver
     
 
 module Utilities =

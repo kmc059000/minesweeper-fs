@@ -13,8 +13,9 @@ open Common.Utilities
                 let sweepableCells = getHiddenCells solution |> Array.ofSeq
                 let cellToSweep = sweepableCells.[rand.Next(sweepableCells.Length)]
                 let game = solution.Game |> sweep cellToSweep.Coords.X cellToSweep.Coords.Y
-                let newSolution = getSolutionFromGame game
-                solveRandomly newSolution
+                game
+                |> Solution.ofGame
+                |> solveRandomly
 
 
 let randomSolver = solve Solvers.solveRandomly
