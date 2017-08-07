@@ -15,27 +15,28 @@ open MinesweeperUI
 
 type TopMenuResponse = PlayGame of (int -> Game) | Quit
 
-type TopMenuChoice = TopMenuChoice of string * TopMenuResponse
-type TopMenuChoices = TopMenuChoices of Map<string, TopMenuChoice>
+type TopMenuChoice = { Text: string; Choice: TopMenuResponse; }
+    with member this.Command = this.Text.ToLower().[0].ToString()
+
+type TopMenuChoices = TopMenuChoices of TopMenuChoice list
 
     module TopMenuChoices =
-        let tryFind key (TopMenuChoices choices) = Map.tryFind key choices
+        let tryFind key (TopMenuChoices choices) = 
+            choices |> List.tryFind (fun c -> c.Command = key)
 
         let asStrings (TopMenuChoices choices) =
-            choices
-            |> Map.toSeq
-            |> Seq.map (fun (command, (TopMenuChoice (txt, _))) -> command, command + " - " + txt)
-            |> Seq.sortBy fst
-            |> Seq.map snd
+            choices |> Seq.map (fun c -> c.Command + " - " + c.Text)
+            
+    module TopMenuChoice =
+        let create text resp = { Text= text; Choice = resp; }
 
 let menuChoices = 
-    TopMenuChoices (
-        Map [
-            ("q", TopMenuChoice ("Quit", Quit));
-            ("1", TopMenuChoice ("Easy ",  PlayGame GameFactory.createEasyGame));
-            ("2", TopMenuChoice ("Medium",  PlayGame GameFactory.createMediumGame));
-            ("3", TopMenuChoice ("Hard",  PlayGame GameFactory.createMediumGame));
-        ])
+    TopMenuChoices [
+        TopMenuChoice.create "Quit" Quit
+        TopMenuChoice.create "Easy"  (PlayGame GameFactory.createEasyGame)
+        TopMenuChoice.create "Medium"  (PlayGame GameFactory.createMediumGame)
+        TopMenuChoice.create "Hard"  (PlayGame GameFactory.createMediumGame)
+    ]
 
 let resetColors _ = 
     Console.ForegroundColor <- ConsoleColor.Green
@@ -49,7 +50,7 @@ let rec requestGameSize _ =
     let option = Console.ReadKey().KeyChar.ToString()
     let difficulty = TopMenuChoices.tryFind option menuChoices
     match difficulty with
-    | Some (TopMenuChoice (_, resp)) -> resp
+    | Some resp -> resp.Choice
     | None ->
         Console.Clear()
         printfn "Unknown difficulty: %s" option
