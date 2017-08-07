@@ -16,13 +16,12 @@ let private flagText =  ConsoleString.create "?" ConsoleColor.Black ConsoleColor
 let private hiddenCellText = ConsoleString.create "·" ConsoleColor.White ConsoleColor.Black
 let private hiddenCellDebugText = ConsoleString.create "H" ConsoleColor.White ConsoleColor.Black
 
-let private tryApplyBackColorOverride game cell cellChar =
-    let isBackgroundSet = cellChar.Background <> ConsoleColor.Black
+let private tryApplyBackColorOverride game cell str =
+    let isBackgroundSet = str.Background <> ConsoleColor.Black
     let isNeighbor = Cells.isNeighbor game.CursorPosition cell 
     match isBackgroundSet, isNeighbor with
-    | true, _
-    | false, false -> cellChar 
-    | false, true -> { cellChar with Background = ConsoleColor.DarkGray }
+    | false, true -> { str with Background = ConsoleColor.DarkGray }
+    | _ -> str
 
 let private hiddenCell cell =
     match debug, cell.IsMine with
