@@ -4,7 +4,7 @@ open Coordinates
 open Cells
 open Cells.Cells
 
-type GameState = Start | Playing | Win | Dead | Quit | Exit
+type GameState = Start | Playing | Win | Dead | Quit
 
 type Game = {
     CursorPosition: Coordinate;

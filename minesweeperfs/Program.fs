@@ -57,7 +57,7 @@ let gameloop seed =
 
     let mutable game = gameFactory seed
 
-    while game.State <> GameState.Exit && game.State <> GameState.Quit do
+    while game.State <> GameState.Quit do
         console <- printGame console game
         let key = Console.ReadKey().Key
         let handleAction = getAction game.CursorPosition key

@@ -79,7 +79,7 @@ let private getRemainingMineCount game =
 
 let private getGameMessage game =
     match game.State with
-    | Start | Playing | Exit -> ""
+    | Start | Playing -> ""
     | Win -> 
         "You won!"
     | Dead -> 
