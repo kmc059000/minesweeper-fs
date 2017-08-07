@@ -13,20 +13,24 @@ open MinesweeperUI
 
 //debug <- true
 
+type TopMenuResponse = PlayGame of (int -> Game) | Quit
+
 let rec requestGameSize _ = 
     Console.WriteLine("What difficulty would you like to play? (type the number)")
+    Console.WriteLine("q - Quit")
     Console.WriteLine("1 - Easy")
     Console.WriteLine("2 - Medium")
     Console.WriteLine("3 - Hard")
     Console.WriteLine("")
-    let difficulty = Console.ReadLine()
+    let difficulty = Console.ReadKey().KeyChar
     match difficulty with
-    | "1" -> GameFactory.createEasyGame
-    | "2" -> GameFactory.createMediumGame
-    | "3" -> GameFactory.createHardGame
+    | '1' -> PlayGame GameFactory.createEasyGame
+    | '2' -> PlayGame GameFactory.createMediumGame
+    | '3' -> PlayGame GameFactory.createHardGame
+    | 'q' -> Quit
     | _ -> 
         Console.Clear()
-        Console.WriteLine("Unknown difficulty: " + difficulty)
+        Console.WriteLine("Unknown difficulty: " + difficulty.ToString())
         requestGameSize ()
 
 
@@ -49,23 +53,37 @@ let getAction (cursor:Coordinates.Coordinate) key =
     | ConsoleKey.F -> flag x y
     | _ -> id
 
-//unpure method
-let gameloop seed =
-    let gameFactory = requestGameSize ()
+
+
+//unpure
+let gameloop initialGame =
     Console.Clear()
     let mutable console = ConsoleText.emptyUI
-
-    let mutable game = gameFactory seed
+    let mutable game = initialGame
 
     while game.State <> GameState.Quit do
         console <- printGame console game
         let key = Console.ReadKey().Key
         let handleAction = getAction game.CursorPosition key
         game <- handleAction game
+
+//unpure
+let rec topGameLoop (rand:Random) =
+    Console.Clear()
+
+    let menuResponse = requestGameSize ()
+    match menuResponse with
+    | Quit -> ()
+    | PlayGame createGame ->
+        //play full game
+        rand.Next() |> createGame |> gameloop
+
+        //ask for another game
+        topGameLoop rand
     
 
 [<EntryPoint>]
 let main argv =
     let rand = new Random()
-    gameloop (rand.Next())
+    topGameLoop rand
     0
