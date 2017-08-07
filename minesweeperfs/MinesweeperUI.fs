@@ -74,6 +74,9 @@ let private getGameBorder left right game =
 let private getGameTop = getGameBorder "╔═" "═╗"
 let private getGameBottom = getGameBorder "╚═" "═╝"
 
+let private getRemainingMineCount game =
+    sprintf "Remaining Mines: %03i" (game.MineCount - game.FlagCount)
+
 let private getGameMessage game =
     match game.State with
     | Start | Playing | Exit -> ""
@@ -90,6 +93,8 @@ let getGameDisplay game =
     let top = [
         defaultText "F# Minesweeper\r\n";
         defaultText "Use arrow keys to move | Space to sweep | f to flag | q to quit";
+        defaultText "\r\n";
+        defaultText (getRemainingMineCount game);
         defaultText "\r\n";
         defaultText (getGameTop game);
         defaultText "\r\n";

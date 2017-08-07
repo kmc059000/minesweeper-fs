@@ -15,6 +15,7 @@ type Game = {
     MineCount: int;
     Seed: int;
     Random: System.Random;
+    FlagCount: int;
 };
 
 
@@ -99,6 +100,7 @@ module GameFactory =
             GameSize = gameSize;
             MineLocations = None;
             MineCount = mineCount;
+            FlagCount = 0;
             Seed = seed;
             Random = new System.Random(seed);
         }

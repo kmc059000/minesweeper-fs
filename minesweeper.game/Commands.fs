@@ -49,12 +49,13 @@ open Games
         let flag x y game = 
             let index = Coordinates.getArrayIndex x y game.GameSize
             let cell = Game.getCell game index
-            let flag = 
+            let flag, flagDiff = 
                 match cell.State with
-                | CellState.Hidden -> Common.setGameCellState index Flagged
-                | CellState.Flagged -> Common.setGameCellState index Hidden
-                | _ -> id
-            flag game
+                | CellState.Hidden -> Common.setGameCellState index Flagged, 1
+                | CellState.Flagged -> Common.setGameCellState index Hidden, -1
+                | _ -> id, 0
+            let newGame = flag game
+            { newGame with FlagCount = newGame.FlagCount + flagDiff }
 
 
     module Move =
