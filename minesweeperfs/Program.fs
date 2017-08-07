@@ -16,12 +16,13 @@ open MinesweeperUI
 type TopMenuResponse = PlayGame of (int -> Game) | Quit
 
 let rec requestGameSize _ = 
-    Console.WriteLine("What difficulty would you like to play? (type the number)")
-    Console.WriteLine("q - Quit")
-    Console.WriteLine("1 - Easy")
-    Console.WriteLine("2 - Medium")
-    Console.WriteLine("3 - Hard")
-    Console.WriteLine("")
+    printfn "What difficulty would you like to play? (type the number)"
+    printfn "q - Quit"
+    printfn "1 - Easy"
+    printfn "2 - Medium"
+    printfn "3 - Hard"
+    printfn ""
+
     let difficulty = Console.ReadKey().KeyChar
     match difficulty with
     | '1' -> PlayGame GameFactory.createEasyGame
@@ -30,7 +31,7 @@ let rec requestGameSize _ =
     | 'q' -> Quit
     | _ -> 
         Console.Clear()
-        Console.WriteLine("Unknown difficulty: " + difficulty.ToString())
+        printfn "Unknown difficulty: %s" (difficulty.ToString())
         requestGameSize ()
 
 
