@@ -48,7 +48,13 @@ open Games
     module Flag =
         let flag x y game = 
             let index = Coordinates.getArrayIndex x y game.GameSize
-            game |> Common.setGameCellState index Flagged
+            let cell = Game.getCell game index
+            let flag = 
+                match cell.State with
+                | CellState.Hidden -> Common.setGameCellState index Flagged
+                | CellState.Flagged -> Common.setGameCellState index Hidden
+                | _ -> id
+            flag game
 
 
     module Move =

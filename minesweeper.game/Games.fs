@@ -19,7 +19,7 @@ type Game = {
 
 
 module Game =
-    let getCell game coords = game.Cells.[coords]
+    let getCell game index = game.Cells.[index]
 
     let placeMines game lastSelectedIndex = 
         let tryPlaceMine mineLocations cell =
