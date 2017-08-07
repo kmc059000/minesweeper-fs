@@ -5,7 +5,12 @@ module ConsolePrinting
 open System
 
 type ConsoleCoords = {X: int; Y: int}
-type ConsoleText = { Text: string; Color: ConsoleColor; Coords: ConsoleCoords}
+type ConsoleText = { 
+    Text: string; 
+    ForegroundColor: ConsoleColor;
+    BackgroundColor: ConsoleColor;
+    Coords: ConsoleCoords
+}
 
     module ConsoleCoords =
         let create x y = { X = x; Y = y; }
@@ -33,15 +38,16 @@ type ConsoleText = { Text: string; Color: ConsoleColor; Coords: ConsoleCoords}
         let rec withCoords startCoords lst =
             match lst with
             | [] -> []
-            | (text,color)::xs -> 
-                let item = { Text = text; Color = color; Coords = startCoords; }
+            | (text,color, backColor)::xs -> 
+                let item = { Text = text; ForegroundColor = color; BackgroundColor = backColor; Coords = startCoords; }
                 let newCoords = getNewCoords startCoords text
                 item :: (withCoords newCoords xs)
 
 
 let private pringConsoleText next =
     System.Console.SetCursorPosition(next.Coords.X, next.Coords.Y)
-    System.Console.ForegroundColor <- next.Color
+    System.Console.ForegroundColor <- next.ForegroundColor
+    System.Console.BackgroundColor <- next.BackgroundColor
     printf "%s" next.Text
 
 let rec printConsoleText lastPos prevRows newRows =

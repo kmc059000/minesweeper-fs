@@ -7,14 +7,14 @@ open Games
 
 let mutable debug = false
 
-let private defaultText text = (text, ConsoleColor.Green)
+let private defaultText text = (text, ConsoleColor.Green, ConsoleColor.Black)
 
 let private emptyText = defaultText " "
-let private mineText = ("*", ConsoleColor.Red)
-let private cursorText = ("@", ConsoleColor.Green)
-let private flagText = ("?", ConsoleColor.Magenta)
-let private hiddenCellText = ("·", ConsoleColor.White)
-let private hiddenCellDebugText = ("H", ConsoleColor.White)
+let private mineText = ("*", ConsoleColor.Red, ConsoleColor.Black)
+let private cursorText = ("@", ConsoleColor.Green, ConsoleColor.Black)
+let private flagText = ("?", ConsoleColor.Magenta, ConsoleColor.Black)
+let private hiddenCellText = ("·", ConsoleColor.White, ConsoleColor.Black)
+let private hiddenCellDebugText = ("H", ConsoleColor.White, ConsoleColor.Black)
 
 let private hiddenCell cell =
     match debug, cell.IsMine with
@@ -36,7 +36,7 @@ let private getExposedCharText cell =
                 | 3 -> ConsoleColor.Yellow
                 | 4 -> ConsoleColor.DarkRed
                 | _ -> ConsoleColor.Red
-            (i.ToString(), color)
+            (i.ToString(), color, ConsoleColor.Black)
 
 let private getCellChar game cell =
     let exposedChar = lazy (getExposedCharText cell)
@@ -52,9 +52,10 @@ let private getCellChar game cell =
 let private getRowText game row = 
     let inner = 
         row 
-        |> List.map (getCellChar game) 
-        |> List.map (fun (text, color) -> (text + " ", color))
-    [("║", ConsoleColor.Green)] @ inner @ [("║\r\n", ConsoleColor.Green)]
+        |> Seq.map (getCellChar game) 
+        |> Seq.collect (fun (text, color, backColor) -> [(text, color,backColor); (defaultText " ")])
+        |> Seq.toList
+    [("║", ConsoleColor.Green, ConsoleColor.Black)] @ inner @ [("║\r\n", ConsoleColor.Green, ConsoleColor.Black)]
 
 let private getRowsText game =
     game.Cells
