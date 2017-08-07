@@ -105,6 +105,6 @@ module GameFactory =
 
     let createImpossibleSimpleGame = createGame 1 1 1
     let createSweepGame = createGame 3 3 8
-    let createEasyGame = createGame 10 10 10
-    let createMediumGame = createGame 20 20 80
-    let createHardGame = createGame 30 30 400
+    let createEasyGame = createGame 8 8 10
+    let createMediumGame = createGame 16 16 40
+    let createHardGame = createGame 32 16 99
