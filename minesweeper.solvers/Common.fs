@@ -19,7 +19,11 @@ open Games
             Game : Game;
             Cells: Map<int, VisibleCell>;
             SolutionState: SolutionState;
+            LastProbability: float option
         }
+
+        module Solution =
+            let withProbability p s = { s with LastProbability = p }
 
         let getSolutionFromGame (game:Game) =
             let getSolutionCell (c:Cell) = 
@@ -34,7 +38,7 @@ open Games
                 | GameState.Win -> Win
                 | GameState.Dead -> Dead
                 | GameState.Start | GameState.Playing | _ -> Unsolved
-            { Game = game; Cells = cells; SolutionState = state; }
+            { Game = game; Cells = cells; SolutionState = state; LastProbability = None }
 
         let solve solver (game:Game) =
             game |> getSolutionFromGame |> solver

@@ -73,7 +73,7 @@ open Common.Utilities
                                 let idx = rand.Next(cells.Length)
                                 sweepAll [List.item idx cells]
 
-                let newSolution = getSolutionFromGame game
+                let newSolution = game |> getSolutionFromGame |> Solution.withProbability (Some probability)
                 solveWithProbability newSolution
                     
                 //find max probability of each sweepable cell of whether it is a mine or not
