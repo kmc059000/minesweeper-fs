@@ -15,7 +15,12 @@ open MinesweeperUI
 
 type TopMenuResponse = PlayGame of (int -> Game) | Quit
 
+let resetColors _ = 
+    Console.ForegroundColor <- ConsoleColor.Green
+    Console.BackgroundColor <- ConsoleColor.Black
+
 let rec requestGameSize _ = 
+    resetColors()
     printfn "What difficulty would you like to play? (type the number)"
     printfn "q - Quit"
     printfn "1 - Easy"
@@ -29,7 +34,7 @@ let rec requestGameSize _ =
     | '2' -> PlayGame GameFactory.createMediumGame
     | '3' -> PlayGame GameFactory.createHardGame
     | 'q' -> Quit
-    | _ -> 
+    | _ ->
         Console.Clear()
         printfn "Unknown difficulty: %s" (difficulty.ToString())
         requestGameSize ()
@@ -58,6 +63,7 @@ let getAction (cursor:Coordinates.Coordinate) key =
 
 //unpure
 let gameloop initialGame =
+    resetColors()
     Console.Clear()
     let mutable console = ConsoleText.emptyUI
     let mutable game = initialGame

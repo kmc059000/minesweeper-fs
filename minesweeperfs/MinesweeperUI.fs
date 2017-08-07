@@ -10,9 +10,9 @@ let mutable debug = false
 let private defaultText text = (text, ConsoleColor.Green, ConsoleColor.Black)
 
 let private emptyText = defaultText " "
-let private mineText = ("*", ConsoleColor.Red, ConsoleColor.Black)
-let private cursorText = ("@", ConsoleColor.Green, ConsoleColor.Black)
-let private flagText = ("?", ConsoleColor.Magenta, ConsoleColor.Black)
+let private mineText = ("*", ConsoleColor.White, ConsoleColor.DarkRed)
+let private cursorText = ("#", ConsoleColor.Black, ConsoleColor.Green)
+let private flagText = ("?", ConsoleColor.Black, ConsoleColor.Yellow)
 let private hiddenCellText = ("·", ConsoleColor.White, ConsoleColor.Black)
 let private hiddenCellDebugText = ("H", ConsoleColor.White, ConsoleColor.Black)
 
