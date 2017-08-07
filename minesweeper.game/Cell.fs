@@ -23,4 +23,9 @@ module Cells =
 
     let withSurroundingCount mineLocations cell =
         { cell with SurroundingCount = Some (getSurroundingCount mineLocations cell) }
+    
+    let isNeighbor coords cell = 
+        coords 
+        |> Coordinates.getValidSurroundingIndexes 
+        |> Seq.exists (fun c -> c = cell.Coords)
 

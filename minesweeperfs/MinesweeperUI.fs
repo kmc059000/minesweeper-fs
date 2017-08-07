@@ -16,19 +16,28 @@ let private flagText = ("?", ConsoleColor.Black, ConsoleColor.Yellow)
 let private hiddenCellText = ("·", ConsoleColor.White, ConsoleColor.Black)
 let private hiddenCellDebugText = ("H", ConsoleColor.White, ConsoleColor.Black)
 
+let private tryApplyBackColorOverride game cell cellChar =
+    let text,color,backColor = cellChar
+    let isBackgroundSet = backColor <> ConsoleColor.Black
+    let isNeighbor = Cells.isNeighbor game.CursorPosition cell 
+    match isBackgroundSet, isNeighbor with
+    | true, _
+    | false, false -> cellChar 
+    | false, true -> text, color, ConsoleColor.DarkGray
+
 let private hiddenCell cell =
     match debug, cell.IsMine with
     | true,true -> mineText
     | true, false -> hiddenCellDebugText
     | false, _ -> hiddenCellText
 
-let private getExposedCharText cell =
+let private getExposedCharText game cell =
     match cell.IsMine with
     | true -> mineText
     | false ->
         match cell.SurroundingCount with
         | None | Some 0 -> emptyText
-        | Some i -> 
+        | Some i ->                
             let color = 
                 match i with
                 | 1 -> ConsoleColor.Cyan
@@ -39,20 +48,24 @@ let private getExposedCharText cell =
             (i.ToString(), color, ConsoleColor.Black)
 
 let private getCellChar game cell =
-    let exposedChar = lazy (getExposedCharText cell)
-    match game.CursorPosition = cell.Coords with
-    | true -> cursorText
-    | false ->
-        match (cell.State, game.State) with
-        | (_, Dead) 
-        | (Exposed, _) ->  exposedChar.Value
-        | (Hidden, _) -> hiddenCell cell            
-        | (Flagged, _) -> flagText
+    let exposedChar = lazy (getExposedCharText game cell)
+    let cellChar = 
+        match game.CursorPosition = cell.Coords with
+        | true -> cursorText
+        | false ->
+            match (cell.State, game.State) with
+            | (_, Dead) 
+            | (Exposed, _) ->  exposedChar.Value
+            | (Hidden, _) -> hiddenCell cell            
+            | (Flagged, _) -> flagText
+
+    cellChar |> tryApplyBackColorOverride game cell 
+        
 
 let private getRowText game row = 
     let inner = 
         row 
-        |> Seq.map (getCellChar game) 
+        |> Seq.map (getCellChar game)
         |> Seq.collect (fun (text, color, backColor) -> [(text, color,backColor); (defaultText " ")])
         |> Seq.toList
     [("║", ConsoleColor.Green, ConsoleColor.Black)] @ inner @ [("║\r\n", ConsoleColor.Green, ConsoleColor.Black)]
