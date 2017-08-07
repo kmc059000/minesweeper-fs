@@ -5,19 +5,23 @@ module ConsolePrinting
 open System
 
 type ConsoleCoords = {X: int; Y: int}
-type ConsoleText = { 
-    Text: string; 
-    ForegroundColor: ConsoleColor;
-    BackgroundColor: ConsoleColor;
+
+type ConsoleString = {Text:string; Foreground: ConsoleColor; Background: ConsoleColor; }
+
+type ConsoleOutput = { 
+    String: ConsoleString;
     Coords: ConsoleCoords
 }
+
+    module ConsoleString =
+        let create text foreground background = { Text = text; Foreground = foreground; Background = background }
 
     module ConsoleCoords =
         let create x y = { X = x; Y = y; }
         let origin = create 0 0
 
-    module ConsoleText =
-        let emptyUI = List.empty<ConsoleText>
+    module ConsoleOutput =
+        let emptyUI = List.empty<ConsoleOutput>
 
         let private isNewLine s = s = '\n'
 
@@ -38,17 +42,17 @@ type ConsoleText = {
         let rec withCoords startCoords lst =
             match lst with
             | [] -> []
-            | (text,color, backColor)::xs -> 
-                let item = { Text = text; ForegroundColor = color; BackgroundColor = backColor; Coords = startCoords; }
-                let newCoords = getNewCoords startCoords text
+            | x::xs -> 
+                let item = { String = x; Coords = startCoords; }
+                let newCoords = getNewCoords startCoords x.Text
                 item :: (withCoords newCoords xs)
 
 
 let private pringConsoleText next =
     System.Console.SetCursorPosition(next.Coords.X, next.Coords.Y)
-    System.Console.ForegroundColor <- next.ForegroundColor
-    System.Console.BackgroundColor <- next.BackgroundColor
-    printf "%s" next.Text
+    System.Console.ForegroundColor <- next.String.Foreground
+    System.Console.BackgroundColor <- next.String.Background
+    printf "%s" next.String.Text
 
 let rec printConsoleText lastPos prevRows newRows =
     match prevRows,newRows with

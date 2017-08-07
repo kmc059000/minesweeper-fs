@@ -7,23 +7,22 @@ open Games
 
 let mutable debug = false
 
-let private defaultText text = (text, ConsoleColor.Green, ConsoleColor.Black)
+let private defaultText text = ConsoleString.create text ConsoleColor.Green ConsoleColor.Black
 
 let private emptyText = defaultText " "
-let private mineText = ("*", ConsoleColor.White, ConsoleColor.DarkRed)
-let private cursorText = ("#", ConsoleColor.Black, ConsoleColor.Green)
-let private flagText = ("?", ConsoleColor.Black, ConsoleColor.Yellow)
-let private hiddenCellText = ("·", ConsoleColor.White, ConsoleColor.Black)
-let private hiddenCellDebugText = ("H", ConsoleColor.White, ConsoleColor.Black)
+let private mineText =  ConsoleString.create "*" ConsoleColor.White ConsoleColor.DarkRed
+let private cursorText = ConsoleString.create "#" ConsoleColor.Black ConsoleColor.Green
+let private flagText =  ConsoleString.create "?" ConsoleColor.Black ConsoleColor.Yellow
+let private hiddenCellText = ConsoleString.create "·" ConsoleColor.White ConsoleColor.Black
+let private hiddenCellDebugText = ConsoleString.create "H" ConsoleColor.White ConsoleColor.Black
 
 let private tryApplyBackColorOverride game cell cellChar =
-    let text,color,backColor = cellChar
-    let isBackgroundSet = backColor <> ConsoleColor.Black
+    let isBackgroundSet = cellChar.Background <> ConsoleColor.Black
     let isNeighbor = Cells.isNeighbor game.CursorPosition cell 
     match isBackgroundSet, isNeighbor with
     | true, _
     | false, false -> cellChar 
-    | false, true -> text, color, ConsoleColor.DarkGray
+    | false, true -> { cellChar with Background = ConsoleColor.DarkGray }
 
 let private hiddenCell cell =
     match debug, cell.IsMine with
@@ -45,7 +44,7 @@ let private getExposedCharText game cell =
                 | 3 -> ConsoleColor.Yellow
                 | 4 -> ConsoleColor.DarkRed
                 | _ -> ConsoleColor.Red
-            (i.ToString(), color, ConsoleColor.Black)
+            ConsoleString.create (i.ToString()) color ConsoleColor.Black
 
 let private getCellChar game cell =
     let exposedChar = lazy (getExposedCharText game cell)
@@ -63,12 +62,14 @@ let private getCellChar game cell =
         
 
 let private getRowText game row = 
+    let left = ConsoleString.create "║" ConsoleColor.Green ConsoleColor.Black
+    let right = ConsoleString.create "║\r\n" ConsoleColor.Green ConsoleColor.Black
     let inner = 
         row 
         |> Seq.map (getCellChar game)
-        |> Seq.collect (fun (text, color, backColor) -> [(text, color,backColor); (defaultText " ")])
+        |> Seq.collect (fun cellChar -> [cellChar; (defaultText " ")])
         |> Seq.toList
-    [("║", ConsoleColor.Green, ConsoleColor.Black)] @ inner @ [("║\r\n", ConsoleColor.Green, ConsoleColor.Black)]
+    left :: (inner @ [right])
 
 let private getRowsText game =
     game.Cells
@@ -118,4 +119,4 @@ let getGameDisplay game =
         defaultText "\r\n\r\n";
         defaultText (getGameMessage game);
     ]
-    (top @ rows @ bottom) |> ConsoleText.withCoords ConsoleCoords.origin
+    (top @ rows @ bottom) |> ConsoleOutput.withCoords ConsoleCoords.origin

@@ -65,7 +65,7 @@ let getAction (cursor:Coordinates.Coordinate) key =
 let gameloop initialGame =
     resetColors()
     Console.Clear()
-    let mutable console = ConsoleText.emptyUI
+    let mutable console = ConsoleOutput.emptyUI
     let mutable game = initialGame
 
     while game.State <> GameState.Quit do
