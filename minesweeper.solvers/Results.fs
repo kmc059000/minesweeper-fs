@@ -1,10 +1,11 @@
 ﻿module Results
 
-open Games
 open Common.Solvers
-open RandomSolver
-open ProbabilitySolver
 
+type SweepCounts = {
+    Imperfect: int;
+    Perfect: int;
+}
 
 type SolutionStats = 
     { 
@@ -13,6 +14,7 @@ type SolutionStats =
         TotalGames: int; 
         LossProbabilities: float option list;
         CellCounts: CellCounts list;
+        SweepCounts: SweepCounts list
         TotalImperfectSweeps: int;
         TotalPerfectSweeps: int;
     }
@@ -39,6 +41,7 @@ module SolutionStats =
         TotalGames = 0;
         LossProbabilities = [];
         CellCounts = [];
+        SweepCounts = [];
         TotalImperfectSweeps = 0;
         TotalPerfectSweeps = 0; 
     }
@@ -56,6 +59,12 @@ module SolutionStats =
             LossProbabilities = solution.LastProbability :: stats.LossProbabilities;
         }
     
+    let addSolution solution stats =
+        match solution.SolutionState with
+        | Win -> stats |> addWin
+        | Dead -> stats |> addLoss solution
+        | _ -> failwith "Unexpected solution state"
+
     let getLossStats stats =
         let ps = 
             stats.LossProbabilities 
@@ -82,6 +91,7 @@ module SolutionStats =
         { stats with
             TotalImperfectSweeps = stats.TotalImperfectSweeps + solution.ImperfectSweeps
             TotalPerfectSweeps = stats.TotalPerfectSweeps + solution.PerfectSweeps;
+            SweepCounts = { Perfect = solution.PerfectSweeps; Imperfect = solution.ImperfectSweeps } :: stats.SweepCounts
         }
 
     let addCellCounts solution stats =
@@ -98,14 +108,23 @@ module SolutionStats =
         printfn "Min Loss Last Sweep %%: %f%%" stats.MinProbability
         printfn "Max Loss Last Sweep %%: %f%%" stats.MaxProbability
 
+    let printSweepStats stats =
+        printfn "Perfect Sweeps: %i" stats.TotalPerfectSweeps
+        printfn "Imperfect Sweeps: %i" stats.TotalImperfectSweeps
+
+        let avgPerfectSweeps = stats.SweepCounts |> Seq.map (fun x -> float x.Perfect) |> Seq.average
+        let avgImperfectPerfectSweeps = stats.SweepCounts |> Seq.map (fun x -> float x.Imperfect) |> Seq.average
+
+        printfn "Avg Perfect Sweeps per Game: %f" avgPerfectSweeps
+        printfn "Avg Imperfect Sweeps per Game: %f" avgImperfectPerfectSweeps
+
     let printResults name results =
         printfn ""
         printfn "%s Results" name
         printfn "Wins: %i" results.TotalWins
         printfn "Losses: %i" results.TotalLosses
         printfn "Win Percent: %f%%" results.WinPercent
-        printfn "Perfect Sweeps: %i" results.TotalPerfectSweeps
-        printfn "Imperfect Sweeps: %i" results.TotalImperfectSweeps
+        printSweepStats results
         printCellStats (getCellCountStats results.CellCounts)
         let lossStats = getLossStats results
         match lossStats with

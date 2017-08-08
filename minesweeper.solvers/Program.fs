@@ -24,11 +24,9 @@ let runSolverTests (solver:Game->Solution) =
     |> Seq.map (testSolverAsync solver)
     |> Async.Parallel
     |> Async.RunSynchronously
-    |> Seq.fold (fun stats solution -> 
-        match solution.SolutionState with
-            | Win -> stats |> SolutionStats.addWin
-            | Dead -> stats |> SolutionStats.addLoss solution
-            | _ -> failwith "Unexpected solution state"
+    |> Seq.fold (fun stats solution ->
+        stats
+        |> SolutionStats.addSolution solution
         |> SolutionStats.addSweepCounts solution
         |> SolutionStats.addCellCounts solution) 
         SolutionStats.empty
@@ -36,7 +34,7 @@ let runSolverTests (solver:Game->Solution) =
 [<EntryPoint>]
 let main argv = 
     printfn "" 
-    SolutionStats.printResults "Random" (runSolverTests randomSolver)
+    //SolutionStats.printResults "Random" (runSolverTests randomSolver)
     SolutionStats.printResults "Probability" (runSolverTests probabilitySolver)
     let r = System.Console.ReadLine()
     0

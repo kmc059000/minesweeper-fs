@@ -75,7 +75,7 @@ open Common.Utilities
                 game 
                 |> Solution.ofGame 
                 |> Solution.withProbability (Some probability)
-                |> Solution.withSweepCounts perfectSweeps imperfectSweeps
+                |> Solution.withSweepCounts (solution.PerfectSweeps + perfectSweeps) (solution.ImperfectSweeps + imperfectSweeps)
                 |> solveWithProbability
                     
                 //find max probability of each sweepable cell of whether it is a mine or not
