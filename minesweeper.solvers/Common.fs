@@ -118,3 +118,10 @@ module Utilities =
         | x::xs ->
             game |> flag x.Coords.X x.Coords.Y
             |> flagAll xs
+
+    let getRandom (rand:System.Random) xs =
+        let idx = rand.Next(List.length xs)
+        List.item idx xs
+
+    let sweepRandom cells (rand:System.Random) game =
+        sweepAll [getRandom rand cells] game

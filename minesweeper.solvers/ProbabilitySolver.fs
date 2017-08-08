@@ -63,10 +63,7 @@ open Common.Utilities
                 let game, perfectSweeps, imperfectSweeps =
                     match (cellsToFlag, probability) with 
                     | [], 0.0 -> sweepAll cellsToSweep.Value solution.Game, cellsToSweep.Value.Length, 0
-                    | [], _ -> 
-                        let idx = rand.Next(cellsToSweep.Value.Length)
-                        let cell = List.item idx cellsToSweep.Value
-                        sweepAll [cell] solution.Game, 0, 1
+                    | [], _ -> sweepRandom cellsToSweep.Value rand solution.Game, 0, 1
                     | cells, _ -> flagAll cells solution.Game, 0, 0
                     
                 
