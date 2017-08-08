@@ -10,13 +10,12 @@ open Common.Utilities
             let neighborMines = exposedCell.SurroundingCount |> float
             let flaggedCount = getFlaggedNeighbors solution exposedCell.Coords |> Seq.length |> float
             let hiddenCount = getHiddenNeighbors solution exposedCell.Coords |> Seq.length |> float
-            let p = (neighborMines - flaggedCount) / hiddenCount
-            p
+            (neighborMines - flaggedCount) / hiddenCount
 
         let solutionMineProbability solution =
             //# of remaining mines / number of hidden cells
             let totalMines = solution.Game.MineCount |> float
-            let cells = solutionCellsOfSeq solution
+            let cells = Solution.cellsToSeq solution
             let flaggedCount = cells |> Seq.choose getFlaggedCell |> Seq.length |> float
             let hiddenCount =  cells |> Seq.choose getHiddenCell |> Seq.length |> float
             (totalMines - flaggedCount) / hiddenCount
@@ -42,7 +41,8 @@ open Common.Utilities
                 let solutionProbability = solutionMineProbability solution
 
                 let cellsByProbability = 
-                    solutionCellsOfSeq solution
+                    solution
+                    |> Solution.cellsToSeq 
                     |> Seq.choose getHiddenCell
                     |> Seq.map (getCellProbability solution solutionProbability)
                 

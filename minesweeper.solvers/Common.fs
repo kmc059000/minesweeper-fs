@@ -27,7 +27,8 @@ open Games
         }
 
         module Solution =
-            
+            let cellsToSeq s = s.Cells |> Map.toSeq |> Seq.map snd
+
             let withProbability p s = { s with LastProbability = p }
             let withSweepCounts perfect imperfect s = 
                 {s with 
@@ -88,8 +89,6 @@ module Utilities =
 
     let getCellsOfType typeMatcher solution =
         solution.Cells |> Map.toSeq |> Seq.map snd |> Seq.choose typeMatcher
-
-    let solutionCellsOfSeq solution = solution.Cells |> Map.toSeq |> Seq.map snd
 
     let getFlaggedCells = getCellsOfType getFlaggedCell
     let getHiddenCells = getCellsOfType getHiddenCell
