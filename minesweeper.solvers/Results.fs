@@ -16,7 +16,7 @@ type SolutionStats =
         TotalImperfectSweeps: int;
         TotalPerfectSweeps: int;
     }
-    with member this.WinPercent = (float this.TotalWins) / (float this.TotalGames )
+    with member this.WinPercent = 100.0 * (float this.TotalWins) / (float this.TotalGames )
 
 type SolutionLossStats = 
     { 
@@ -60,14 +60,15 @@ module SolutionStats =
         let ps = 
             stats.LossProbabilities 
             |> List.choose id
+        
 
         match ps with
         | [] -> None
         | _ -> 
             Some { 
-                AvgProbability = ps |> Seq.average;
-                MinProbability = ps |> Seq.min;
-                MaxProbability = ps |> Seq.max;
+                AvgProbability = ps |> Seq.average |> (*) 100.0;
+                MinProbability = ps |> Seq.min |> (*) 100.0;
+                MaxProbability = ps |> Seq.max |> (*) 100.0;
             }
 
     let getCellCountStats stats =
