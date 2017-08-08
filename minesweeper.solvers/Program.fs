@@ -9,6 +9,7 @@ type SolutionStats =
         TotalLosses: int; 
         TotalGames: int; 
         LossProbabilities: float option list;
+        CellCounts: CellCounts list;
         TotalImperfectSweeps: int;
         TotalPerfectSweeps: int;
     }
@@ -21,8 +22,23 @@ type SolutionLossStats =
         MaxProbability: float;
     }
 
+type CellCountStats = 
+    { 
+        AvgExposed: float;
+        AvgFlagged: float;
+        AvgHidden: float;
+    }
+
 module SolutionStats =
-    let empty = { TotalWins = 0; TotalLosses = 0; TotalGames = 0; LossProbabilities = []; TotalImperfectSweeps = 0; TotalPerfectSweeps = 0; }
+    let empty = { 
+        TotalWins = 0;
+        TotalLosses = 0;
+        TotalGames = 0;
+        LossProbabilities = [];
+        CellCounts = [];
+        TotalImperfectSweeps = 0;
+        TotalPerfectSweeps = 0; 
+    }
 
     let addWin stats = 
         { stats with 
@@ -50,6 +66,13 @@ module SolutionStats =
                 MinProbability = ps |> Seq.min;
                 MaxProbability = ps |> Seq.max;
             }
+
+    let getCellCountStats stats =
+        { 
+            AvgExposed = stats |> Seq.map (fun x -> float x.Exposed) |> Seq.average;
+            AvgFlagged =  stats |> Seq.map (fun x -> float x.Flagged) |> Seq.average;
+            AvgHidden =  stats |> Seq.map (fun x -> float x.Hidden) |> Seq.average;
+        }
             
     let addSweepCounts solution stats =
         { stats with
@@ -57,9 +80,12 @@ module SolutionStats =
             TotalPerfectSweeps = stats.TotalPerfectSweeps + solution.PerfectSweeps;
         }
 
+    let addCellCounts solution stats =
+        { stats with CellCounts = Solution.cellCounts solution :: stats.CellCounts }
+
 let rand = new System.Random()
 let createGame i = 
-    (GameFactory.createEasyGame (rand.Next()), i)
+    (GameFactory.createMediumGame (rand.Next()), i)
 
 let testCases = 10000
 let games = [0..(testCases - 1)] |> Seq.map createGame
@@ -78,10 +104,17 @@ let runSolverTests (solver:Game->Solution) =
     |> Async.RunSynchronously
     |> Seq.fold (fun stats solution -> 
         match solution.SolutionState with
-            | Win -> stats |> SolutionStats.addWin |> SolutionStats.addSweepCounts solution
-            | Dead -> stats |> SolutionStats.addLoss solution |> SolutionStats.addSweepCounts solution
-            | _ -> failwith "Unexpected solution state") 
+            | Win -> stats |> SolutionStats.addWin
+            | Dead -> stats |> SolutionStats.addLoss solution
+            | _ -> failwith "Unexpected solution state"
+        |> SolutionStats.addSweepCounts solution
+        |> SolutionStats.addCellCounts solution) 
         SolutionStats.empty
+
+let printCellStats stats =
+    printfn "Avg Hidden: %03f" stats.AvgHidden
+    printfn "Avg Exposed: %03f" stats.AvgExposed
+    printfn "Avg Flagged: %03f" stats.AvgFlagged
 
 let printLossStats stats = 
     printfn "Avg Loss Last Sweep %%: %f%%" stats.AvgProbability
@@ -95,6 +128,7 @@ let printResults name results =
     printfn "Win Percent: %f%%" results.WinPercent
     printfn "Perfect Sweeps: %i" results.TotalPerfectSweeps
     printfn "Imperfect Sweeps: %i" results.TotalImperfectSweeps
+    printCellStats (SolutionStats.getCellCountStats results.CellCounts)
     let lossStats = SolutionStats.getLossStats results
     match lossStats with
     | Some s -> printLossStats s

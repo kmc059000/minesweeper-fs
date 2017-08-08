@@ -13,6 +13,8 @@ open Games
             | Exposed of ExposedCell
             | Flagged of ExposedCell
 
+        type CellCounts = { Hidden: int; Exposed: int; Flagged: int; }
+
         //restricted view of the game for the solver
         type SolutionState = Unsolved | Win | Dead
         type Solution = {
@@ -47,6 +49,17 @@ open Games
                     | GameState.Dead -> Dead
                     | GameState.Start | GameState.Playing | _ -> Unsolved
                 { Game = game; Cells = cells; SolutionState = state; LastProbability = None; PerfectSweeps = 0; ImperfectSweeps = 0; }
+
+            let cellCounts solution =
+                solution.Game.Cells 
+                |> Map.toSeq 
+                |> Seq.map snd 
+                |> Seq.fold (fun acc cell -> 
+                    match cell.State with 
+                    | CellState.Hidden -> { acc with Hidden = acc.Hidden + 1 }
+                    | CellState.Exposed -> { acc with Exposed = acc.Exposed + 1 }
+                    | CellState.Flagged -> { acc with Flagged = acc.Flagged + 1 }
+                ) { Hidden = 0;  Exposed = 0; Flagged = 0; }
 
         let solve solver (game:Game) =
             game |> Solution.ofGame |> solver
