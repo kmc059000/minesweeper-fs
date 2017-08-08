@@ -45,32 +45,30 @@ open Common.Utilities
                     solutionCellsOfSeq solution
                     |> Seq.choose getHiddenCell
                     |> Seq.map (getCellProbability solution solutionProbability)
-                    //|> Seq.groupBy (fun (cell, prob) -> prob)
                 
-                let cellsByMaxProbability = cellsByProbability |> Seq.groupBy (fun (cell, (min, max)) -> max)
                 let cellsByMinProbability = cellsByProbability |> Seq.groupBy (fun (cell, (min, max)) -> min)
 
-                let cellsToFlag = 
-                    cellsByMaxProbability 
-                    |> Seq.tryFind (fun (p, _) -> p = 1.0) 
-                    |> Option.map (fun (_, cells) -> Seq.map fst cells |> Seq.toList)
+                let cellsToFlag =
+                    cellsByProbability 
+                    |> Seq.filter (fun (cell, (min, max)) -> max = 1.0)
+                    |> Seq.map fst
+                    |> Seq.toList
                 
                 let (probability, cellResults) = 
                     cellsByMinProbability
-                    |> Seq.sortBy fst
-                    |> Seq.head
+                    |> Seq.minBy fst
 
-                let cells = cellResults |> Seq.map fst |> Seq.toList
+                let cellsToSweep = lazy ( cellResults |> Seq.map fst |> Seq.toList )
 
                 let game, perfectSweeps, imperfectSweeps =
                     match (cellsToFlag, probability) with 
-                    | Some cells, _ -> flagAll cells solution.Game, 0, 0
-                    | None, probability -> 
-                        match probability with
-                        | 0.0 -> sweepAll cells solution.Game, cells.Length, 0
-                        | _ -> 
-                            let idx = rand.Next(cells.Length)
-                            sweepAll [List.item idx cells] solution.Game, 0, 1
+                    | [], 0.0 -> sweepAll cellsToSweep.Value solution.Game, cellsToSweep.Value.Length, 0
+                    | [], _ -> 
+                        let idx = rand.Next(cellsToSweep.Value.Length)
+                        let cell = List.item idx cellsToSweep.Value
+                        sweepAll [cell] solution.Game, 0, 1
+                    | cells, _ -> flagAll cells solution.Game, 0, 0
+                    
                 
                 game 
                 |> Solution.ofGame 
