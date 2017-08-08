@@ -20,11 +20,18 @@ open Games
             Cells: Map<int, VisibleCell>;
             SolutionState: SolutionState;
             LastProbability: float option
+            PerfectSweeps: int;
+            ImperfectSweeps: int;
         }
 
         module Solution =
             
             let withProbability p s = { s with LastProbability = p }
+            let withSweepCounts perfect imperfect s = 
+                {s with 
+                    PerfectSweeps = s.PerfectSweeps + perfect;
+                    ImperfectSweeps = s.ImperfectSweeps + imperfect
+                }
 
             let ofGame (game:Game) =
                 let getSolutionCell (c:Cell) = 
@@ -39,7 +46,7 @@ open Games
                     | GameState.Win -> Win
                     | GameState.Dead -> Dead
                     | GameState.Start | GameState.Playing | _ -> Unsolved
-                { Game = game; Cells = cells; SolutionState = state; LastProbability = None }
+                { Game = game; Cells = cells; SolutionState = state; LastProbability = None; PerfectSweeps = 0; ImperfectSweeps = 0; }
 
         let solve solver (game:Game) =
             game |> Solution.ofGame |> solver

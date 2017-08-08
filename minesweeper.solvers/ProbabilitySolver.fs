@@ -62,20 +62,20 @@ open Common.Utilities
 
                 let cells = cellResults |> Seq.map fst |> Seq.toList
 
-                let game =
-                    solution.Game
-                    |> match (cellsToFlag, probability) with 
-                        | Some cells, _ -> flagAll cells
-                        | None, probability -> 
-                            match probability with
-                            | 0.0 -> sweepAll cells
-                            | _ -> 
-                                let idx = rand.Next(cells.Length)
-                                sweepAll [List.item idx cells]
+                let game, perfectSweeps, imperfectSweeps =
+                    match (cellsToFlag, probability) with 
+                    | Some cells, _ -> flagAll cells solution.Game, 0, 0
+                    | None, probability -> 
+                        match probability with
+                        | 0.0 -> sweepAll cells solution.Game, cells.Length, 0
+                        | _ -> 
+                            let idx = rand.Next(cells.Length)
+                            sweepAll [List.item idx cells] solution.Game, 0, 1
                 
                 game 
                 |> Solution.ofGame 
                 |> Solution.withProbability (Some probability)
+                |> Solution.withSweepCounts perfectSweeps imperfectSweeps
                 |> solveWithProbability
                     
                 //find max probability of each sweepable cell of whether it is a mine or not

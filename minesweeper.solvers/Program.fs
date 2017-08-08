@@ -4,7 +4,14 @@ open RandomSolver
 open ProbabilitySolver
 
 type SolutionStats = 
-    { TotalWins : int; TotalLosses: int; TotalGames: int; LossProbabilities: float option list}
+    { 
+        TotalWins : int; 
+        TotalLosses: int; 
+        TotalGames: int; 
+        LossProbabilities: float option list;
+        TotalImperfectSweeps: int;
+        TotalPerfectSweeps: int;
+    }
     with member this.WinPercent = (float this.TotalWins) / (float this.TotalGames )
 
 type SolutionLossStats = 
@@ -15,7 +22,7 @@ type SolutionLossStats =
     }
 
 module SolutionStats =
-    let empty = { TotalWins = 0; TotalLosses = 0; TotalGames = 0; LossProbabilities = [] }
+    let empty = { TotalWins = 0; TotalLosses = 0; TotalGames = 0; LossProbabilities = []; TotalImperfectSweeps = 0; TotalPerfectSweeps = 0; }
 
     let addWin stats = 
         { stats with 
@@ -43,13 +50,18 @@ module SolutionStats =
                 MinProbability = ps |> Seq.min;
                 MaxProbability = ps |> Seq.max;
             }
-    
+            
+    let addSweepCounts solution stats =
+        { stats with
+            TotalImperfectSweeps = stats.TotalImperfectSweeps + solution.ImperfectSweeps
+            TotalPerfectSweeps = stats.TotalPerfectSweeps + solution.PerfectSweeps;
+        }
 
 let rand = new System.Random()
 let createGame i = 
     (GameFactory.createEasyGame (rand.Next()), i)
 
-let testCases = 1000
+let testCases = 10000
 let games = [0..(testCases - 1)] |> Seq.map createGame
 
 let testSolver (solver:Game->Solution) game = solver game
@@ -66,8 +78,8 @@ let runSolverTests (solver:Game->Solution) =
     |> Async.RunSynchronously
     |> Seq.fold (fun stats solution -> 
         match solution.SolutionState with
-            | Win -> stats |> SolutionStats.addWin
-            | Dead -> stats |> SolutionStats.addLoss solution
+            | Win -> stats |> SolutionStats.addWin |> SolutionStats.addSweepCounts solution
+            | Dead -> stats |> SolutionStats.addLoss solution |> SolutionStats.addSweepCounts solution
             | _ -> failwith "Unexpected solution state") 
         SolutionStats.empty
 
@@ -81,6 +93,8 @@ let printResults name results =
     printfn "Wins: %i" results.TotalWins
     printfn "Losses: %i" results.TotalLosses
     printfn "Win Percent: %f%%" results.WinPercent
+    printfn "Perfect Sweeps: %i" results.TotalPerfectSweeps
+    printfn "Imperfect Sweeps: %i" results.TotalImperfectSweeps
     let lossStats = SolutionStats.getLossStats results
     match lossStats with
     | Some s -> printLossStats s
