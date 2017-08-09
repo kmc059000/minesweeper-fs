@@ -33,8 +33,18 @@ module Coordinates =
         let index = getArrayIndex x y coords.GameSize
         {coords with X = x; Y = y; Index = index; }
 
-    let getValidSurroundingIndexes coords =
+    let getValidSurroundingCoordinates coords =
         surroundingOffsets
         |> Seq.map (getOffsetIndex coords)
         |> Seq.filter isValid
+        |> Set.ofSeq
 
+    let getValidSurroundingIndexes coords =
+        coords 
+        |> getValidSurroundingCoordinates 
+        |> Set.map (fun c -> c.Index) 
+
+    let isNeighbor c1 c2 = 
+        c1
+        |> getValidSurroundingCoordinates
+        |> Seq.contains c2

@@ -51,7 +51,7 @@ module Coordinate =
 
     let getNeighborsOfType typeMatcher solution coords =
         Coordinates.getValidSurroundingIndexes coords
-        |> Seq.map (fun n -> solution.Cells.[n.Index])
+        |> Seq.map (fun idx -> solution.Cells.[idx])
         |> Seq.choose typeMatcher
                 
     let getFlaggedNeighbors = getNeighborsOfType getFlaggedCell

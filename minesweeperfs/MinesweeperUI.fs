@@ -2,6 +2,7 @@
 
 open System
 open ConsolePrinting
+open Coordinates
 open Cells
 open Games
 
@@ -18,7 +19,7 @@ let private hiddenCellDebugText = ConsoleString.create "H" ConsoleColor.White Co
 
 let private tryApplyBackgroundOverride game cell str =
     let isBackgroundSet = str.Background <> ConsoleColor.Black
-    let isNeighbor = Cells.isNeighbor game.CursorPosition cell 
+    let isNeighbor = Coordinates.isNeighbor game.CursorPosition cell.Coords
     match isBackgroundSet, isNeighbor with
     | false, true -> { str with Background = ConsoleColor.DarkGray }
     | _ -> str

@@ -16,7 +16,6 @@ open Games
             match cell.State with
             | Hidden-> 
                 Coordinates.getValidSurroundingIndexes cell.Coords
-                    |> Seq.map (fun c -> c.Index)
                     |> Seq.map (Game.getCell game)
                     |> Seq.filter (fun x -> x.IsMine = false)
                     |> Seq.map (fun x -> x.Coords.Index)

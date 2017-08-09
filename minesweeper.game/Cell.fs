@@ -13,19 +13,19 @@ type Cell = {
 
 module Cells =
     let create state coords isMine surroundingCount =
-        { State = state; Coords = coords; IsMine = isMine; SurroundingCount = surroundingCount };
+        { State = state; 
+          Coords = coords; 
+          IsMine = isMine; 
+          SurroundingCount = surroundingCount };
         
-    let getSurroundingCount mineLocations cell =
+    let private getSurroundingCount mineLocations cell =
         cell.Coords
         |> Coordinates.getValidSurroundingIndexes
-        |> Seq.filter (fun coords -> Set.contains coords.Index mineLocations)
+        |> Set.intersect mineLocations
         |> Seq.length
 
     let withSurroundingCount mineLocations cell =
         { cell with SurroundingCount = Some (getSurroundingCount mineLocations cell) }
     
-    let isNeighbor coords cell = 
-        coords 
-        |> Coordinates.getValidSurroundingIndexes 
-        |> Seq.exists (fun c -> c = cell.Coords)
+    
 
