@@ -76,6 +76,12 @@ module Game =
         let newCells = game.Cells |> Map.add index { cell with State = state; }
         { game with Cells = newCells}
 
+    let getNeighborCells cell game =
+        cell.Coords
+        |> Coordinates.getValidSurroundingIndexes
+        |> Seq.map (getCell game)
+        
+
 module GameFactory =
     let createGame width height mineCount seed =
         let gameSize = { Width = width; Height = height; }
