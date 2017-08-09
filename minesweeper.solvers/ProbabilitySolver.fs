@@ -1,23 +1,21 @@
 ﻿module ProbabilitySolver
 
-open Common.Solvers
-open Common.Utilities
+open Common
 
     module private Solvers =
         let rand = new System.Random()
 
         let getMineProbability solution exposedCell =
             let neighborMines = exposedCell.SurroundingCount |> float
-            let flaggedCount = getFlaggedNeighbors solution exposedCell.Coords |> Seq.length |> float
-            let hiddenCount = getHiddenNeighbors solution exposedCell.Coords |> Seq.length |> float
+            let flaggedCount = exposedCell |> Cell.getFlaggedCount solution
+            let hiddenCount = exposedCell |> Cell.getHiddenCount solution
             (neighborMines - flaggedCount) / hiddenCount
 
         let solutionMineProbability solution =
             //# of remaining mines / number of hidden cells
             let totalMines = solution.Game.MineCount |> float
-            let cells = Solution.cellsToSeq solution
-            let flaggedCount = cells |> Seq.choose getFlaggedCell |> Seq.length |> float
-            let hiddenCount =  cells |> Seq.choose getHiddenCell |> Seq.length |> float
+            let flaggedCount = solution |> Solution.flaggedCount |> float
+            let hiddenCount = solution |> Solution.hiddenCount |> float
             (totalMines - flaggedCount) / hiddenCount
 
         //returns the probability of the hidden cell being a mine.
@@ -25,7 +23,7 @@ open Common.Utilities
         //otherwise, this cell's probability is the number of remaining mines / number of hidden cells
         let getCellProbability solution solutionProbability (cell:HiddenCell) =
             let probabilities = 
-                getExposedNeighbors solution cell.Coords
+                Coordinate.getExposedNeighbors solution cell.Coords
                 |> Seq.map (getMineProbability solution)
                 |> Seq.toList
             let probability = 
@@ -43,7 +41,7 @@ open Common.Utilities
                 let cellsByProbability = 
                     solution
                     |> Solution.cellsToSeq 
-                    |> Seq.choose getHiddenCell
+                    |> Seq.choose Coordinate.getHiddenCell
                     |> Seq.map (getCellProbability solution solutionProbability)
                 
                 let cellsByMinProbability = cellsByProbability |> Seq.groupBy (fun (cell, (min, max)) -> min)
@@ -62,9 +60,9 @@ open Common.Utilities
 
                 let game, perfectSweeps, imperfectSweeps =
                     match (cellsToFlag, probability) with 
-                    | [], 0.0 -> sweepAll cellsToSweep.Value solution.Game, cellsToSweep.Value.Length, 0
-                    | [], _ -> sweepRandom cellsToSweep.Value rand solution.Game, 0, 1
-                    | cells, _ -> flagAll cells solution.Game, 0, 0
+                    | [], 0.0 -> Game.sweepAll cellsToSweep.Value solution.Game, cellsToSweep.Value.Length, 0
+                    | [], _ -> Game.sweepRandom cellsToSweep.Value rand solution.Game, 0, 1
+                    | cells, _ -> Game.flagAll cells solution.Game, 0, 0
                     
                 
                 game 
@@ -80,4 +78,4 @@ open Common.Utilities
                 //reevaulate cells
 
 
-let probabilitySolver = solve Solvers.solveWithProbability
+let probabilitySolver = Game.solve Solvers.solveWithProbability

@@ -1,6 +1,6 @@
 ﻿module Results
 
-open Common.Solvers
+open Common
 
 type SweepCounts = {
     Imperfect: int;

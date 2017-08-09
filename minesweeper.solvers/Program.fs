@@ -1,5 +1,5 @@
 ﻿open Games
-open Common.Solvers
+open Common
 open RandomSolver
 open ProbabilitySolver
 open Results
