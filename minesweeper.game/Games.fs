@@ -71,8 +71,10 @@ module Game =
         | true -> { game with State = GameState.Dead; }
         | false -> game
 
-
-
+    let setCellState index state game =
+        let cell = getCell game index
+        let newCells = game.Cells |> Map.add index { cell with State = state; }
+        { game with Cells = newCells}
 
 module GameFactory =
     let createGame width height mineCount seed =

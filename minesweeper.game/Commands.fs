@@ -4,12 +4,6 @@ open Coordinates
 open Cells
 open Games
 
-    module Common =        
-        let setGameCellState index state game =
-            let cell = game.Cells.[index]
-            let newCells = game.Cells |> Map.add index { cell with State = state; }
-            { game with Cells = newCells}
-
     module Sweep =
         let getSurroundingCellsToSweep index game =
             let cell = game.Cells.[index]
@@ -32,17 +26,17 @@ open Games
                     match cell.SurroundingCount with
                     | Some 0 -> getSurroundingCellsToSweep x game
                     | _ -> []
-                let newGame = game |> Common.setGameCellState x Exposed
+                let newGame = game |> Game.setCellState x Exposed
                 newGame |> sweepCells surrounding |> sweepCells xs
 
 
         let sweep x y game = 
             let index = Coordinates.getArrayIndex x y game.GameSize
             game 
-                |> Game.tryPlaceMines index
-                |> sweepCells [index]
-                |> Game.testWin
-                |> Game.testLoss index
+            |> Game.tryPlaceMines index
+            |> sweepCells [index]
+            |> Game.testWin
+            |> Game.testLoss index
 
     module Flag =
         let flag x y game = 
@@ -50,8 +44,8 @@ open Games
             let cell = Game.getCell game index
             let flag, flagDiff = 
                 match cell.State with
-                | CellState.Hidden -> Common.setGameCellState index Flagged, 1
-                | CellState.Flagged -> Common.setGameCellState index Hidden, -1
+                | CellState.Hidden -> Game.setCellState index Flagged, 1
+                | CellState.Flagged -> Game.setCellState index Hidden, -1
                 | _ -> id, 0
             let newGame = flag game
             { newGame with FlagCount = newGame.FlagCount + flagDiff }
