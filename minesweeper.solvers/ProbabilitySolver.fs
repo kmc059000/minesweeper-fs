@@ -62,7 +62,7 @@ open Common
         let rec solveWithProbability (solution:Solution) = 
             match solution.SolutionState with
             | Win | Dead -> solution
-            | _ -> 
+            | _ ->
                 let cellProbabilities = getCellProbabilities solution
                 let cellsToFlag = CellProbability.cellsToFlag cellProbabilities
                 let bestProbability, bestCellsToSweep = CellProbability.bestCellsToSweep cellProbabilities

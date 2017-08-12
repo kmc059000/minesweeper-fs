@@ -4,7 +4,7 @@ open Coordinates
 open Cells
 open Games
 
-type HiddenCell = { Coords: Coordinate; }
+type HiddenCell = { Coords: Coordinate; TotalNeighbors: int; }
 type ExposedCell = { Coords: Coordinate; SurroundingCount: int; }
 
 type VisibleCell = 
@@ -92,7 +92,8 @@ module Solution =
     let ofGame (game:Game) =
         let getSolutionCell (c:Cell) = 
             match c.State with
-            | CellState.Hidden -> (c.Coords.Index, Hidden { Coords = c.Coords; })
+            | CellState.Hidden -> (c.Coords.Index, Hidden { Coords = c.Coords; TotalNeighbors = c.TotalNeighbors;
+            })
             | CellState.Exposed -> (c.Coords.Index, Exposed { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
             | CellState.Flagged -> (c.Coords.Index, Flagged { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
 
@@ -139,8 +140,16 @@ module Game =
         let idx = rand.Next(List.length xs)
         List.item idx xs
 
+    let filterToFewestNeighbors cells =
+        cells 
+        |> Seq.groupBy (fun c -> c.TotalNeighbors)
+        |> Seq.minBy (fun (k,_) -> k)
+        |> snd
+
     let sweepRandom cells (rand:System.Random) game =
-        sweepAll [getRandom rand cells] game
+        let bestCells = cells |> filterToFewestNeighbors |> Seq.toList
+        let cell = bestCells |> getRandom rand
+        sweepAll [cell] game
 
     let solve solver (game:Game) =
         game |> Solution.ofGame |> solver
