@@ -17,14 +17,13 @@ let private flagText =  ConsoleString.create "?" ConsoleColor.Black ConsoleColor
 let private hiddenCellText = ConsoleString.create "·" ConsoleColor.White ConsoleColor.Black
 let private hiddenCellDebugText = ConsoleString.create "H" ConsoleColor.White ConsoleColor.Black
 
-let private tryApplyBackgroundOverride game cell str =
-    let isBackgroundSet = str.Background <> ConsoleColor.Black
+let private highlightCursorNeighbor game cell str =
     let isNeighbor = Coordinates.isNeighbor game.CursorPosition cell.Coords
-    match isBackgroundSet, isNeighbor with
-    | false, true -> { str with Background = ConsoleColor.DarkGray }
+    match isNeighbor with
+    | true -> { str with Background = ConsoleColor.DarkGray }
     | _ -> str
 
-let private hiddenCell cell =
+let private hiddenCell game cell =
     match debug, cell.IsMine with
     | true,true -> mineText
     | true, false -> hiddenCellDebugText
@@ -47,18 +46,14 @@ let private getExposedCharText game cell =
             
 let private getCellChar game cell =
     let exposedChar = lazy (getExposedCharText game cell)
-    let cellChar = 
-        match game.CursorPosition = cell.Coords with
-        | true -> cursorText
-        | false ->
-            match (cell.State, game.State) with
-            | (_, Dead) 
-            | (Exposed, _) ->  exposedChar.Value
-            | (Hidden, _) -> hiddenCell cell            
-            | (Flagged, _) -> flagText
-
-    cellChar |> tryApplyBackgroundOverride game cell 
-        
+    match game.CursorPosition = cell.Coords with
+    | true -> cursorText
+    | false ->
+        match (cell.State, game.State) with
+        | (_, Dead) 
+        | (Exposed, _) ->  exposedChar.Value
+        | (Hidden, _) -> hiddenCell game cell |> highlightCursorNeighbor game cell 
+        | (Flagged, _) -> flagText        
 
 let private getRowText game row = 
     let left = ConsoleString.create "║" ConsoleColor.Green ConsoleColor.Black
