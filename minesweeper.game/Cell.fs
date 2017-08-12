@@ -9,14 +9,16 @@ type Cell = {
     Coords: Coordinate;
     IsMine: bool;
     SurroundingCount: int option;
+    TotalNeighbors: int;
 };
 
 module Cells =
-    let create state coords isMine surroundingCount =
+    let create state coords isMine surroundingCount totalNeighbors =
         { State = state; 
           Coords = coords; 
           IsMine = isMine; 
-          SurroundingCount = surroundingCount };
+          SurroundingCount = surroundingCount;
+          TotalNeighbors = totalNeighbors};
         
     let private getSurroundingCount mineLocations cell =
         cell.Coords
