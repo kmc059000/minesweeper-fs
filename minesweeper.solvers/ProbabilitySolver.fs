@@ -76,7 +76,7 @@ open Common
                 game 
                 |> Solution.ofGame 
                 |> Solution.withProbability bestProbability
-                |> Solution.withSweepCounts perfectSweeps imperfectSweeps
+                |> Solution.withSweepCounts solution.Game.State perfectSweeps imperfectSweeps
                 |> solveWithProbability
 
 

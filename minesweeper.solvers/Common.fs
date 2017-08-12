@@ -83,11 +83,14 @@ module Solution =
 
     let withProbability p s = { s with LastProbability = (Some p) }
 
-    let withSweepCounts perfect imperfect s = 
-        { s with 
-            PerfectSweeps = s.PerfectSweeps + perfect;
-            ImperfectSweeps = s.ImperfectSweeps + imperfect
-        }
+    let withSweepCounts previousGameState perfect imperfect s = 
+        match previousGameState with
+        | GameState.Start -> { s with PerfectSweeps = 1; } 
+        | _ -> 
+            { s with 
+                PerfectSweeps = s.PerfectSweeps + perfect;
+                ImperfectSweeps = s.ImperfectSweeps + imperfect
+            }
 
     let ofGame (game:Game) =
         let getSolutionCell (c:Cell) = 
