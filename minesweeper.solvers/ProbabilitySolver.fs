@@ -3,9 +3,28 @@
 open Common
 
     module private Solvers =
+        type Range<'a> = { Min: 'a; Max : 'a }
+        type CellProbability = { Cell: HiddenCell; ProbabilityRange: Range<float>; }
+
+        module CellProbability =
+            let cellsToFlag cells =
+                cells
+                |> Seq.filter (fun x -> x.ProbabilityRange.Max = 1.0)
+                |> Seq.map (fun x -> x.Cell)
+                |> Seq.toList
+
+            let bestCellsToSweep cells =
+                let probability, probabilitiesToSweep = 
+                    cells 
+                    |> Seq.groupBy (fun x -> x.ProbabilityRange.Min)
+                    |> Seq.minBy (fun (prob,_) -> prob)
+
+                let cellsToSweep = probabilitiesToSweep |> Seq.map (fun x -> x.Cell) |> Seq.toList
+                probability, cellsToSweep
+
         let rand = new System.Random()
 
-        let getMineProbability solution exposedCell =
+        let getMineProbabilityOfCell solution exposedCell =
             let neighborMines = exposedCell.SurroundingCount |> float
             let flaggedCount = exposedCell |> Cell.getFlaggedCount solution
             let hiddenCount = exposedCell |> Cell.getHiddenCount solution
@@ -23,59 +42,42 @@ open Common
         //otherwise, this cell's probability is the number of remaining mines / number of hidden cells
         let getCellProbability solution solutionProbability (cell:HiddenCell) =
             let probabilities = 
-                Coordinate.getExposedNeighbors solution cell.Coords
-                |> Seq.map (getMineProbability solution)
+                cell.Coords 
+                |> Coordinate.getExposedNeighbors solution 
+                |> Seq.map (getMineProbabilityOfCell solution)
                 |> Seq.toList
-            let probability = 
+            let probabilityRange = 
                 match probabilities.Length with
-                | 0 -> (solutionProbability, solutionProbability)
-                | _ -> (probabilities |> Seq.min, probabilities |> Seq.max)
-            (cell, probability)
+                | 0 -> { Min = solutionProbability; Max = solutionProbability }
+                | _ -> { Min = probabilities |> Seq.min; Max = probabilities |> Seq.max }
+            { Cell = cell; ProbabilityRange = probabilityRange; }
+
+        let getCellProbabilities solution =  
+            let solutionProbability = solutionMineProbability solution
+            solution
+            |> Solution.cellsToSeq 
+            |> Seq.choose Coordinate.getHiddenCell
+            |> Seq.map (getCellProbability solution solutionProbability)
 
         let rec solveWithProbability (solution:Solution) = 
             match solution.SolutionState with
             | Win | Dead -> solution
             | _ -> 
-                let solutionProbability = solutionMineProbability solution
-
-                let cellsByProbability = 
-                    solution
-                    |> Solution.cellsToSeq 
-                    |> Seq.choose Coordinate.getHiddenCell
-                    |> Seq.map (getCellProbability solution solutionProbability)
+                let cellProbabilities = getCellProbabilities solution
+                let cellsToFlag = CellProbability.cellsToFlag cellProbabilities
+                let probability, cellsToSweep = CellProbability.bestCellsToSweep cellProbabilities
                 
-                let cellsByMinProbability = cellsByProbability |> Seq.groupBy (fun (cell, (min, max)) -> min)
-
-                let cellsToFlag =
-                    cellsByProbability 
-                    |> Seq.filter (fun (cell, (min, max)) -> max = 1.0)
-                    |> Seq.map fst
-                    |> Seq.toList
-                
-                let (probability, cellResults) = 
-                    cellsByMinProbability
-                    |> Seq.minBy fst
-
-                let cellsToSweep = lazy ( cellResults |> Seq.map fst |> Seq.toList )
-
                 let game, perfectSweeps, imperfectSweeps =
                     match (cellsToFlag, probability) with 
-                    | [], 0.0 -> Game.sweepAll cellsToSweep.Value solution.Game, cellsToSweep.Value.Length, 0
-                    | [], _ -> Game.sweepRandom cellsToSweep.Value rand solution.Game, 0, 1
-                    | cells, _ -> Game.flagAll cells solution.Game, 0, 0
+                    | [], 0.0 -> Game.sweepAll cellsToSweep solution.Game, cellsToSweep.Length, 0
+                    | [], _ -> Game.sweepRandom cellsToSweep rand solution.Game, 0, 1
+                    | mines, _ -> Game.flagAll mines solution.Game, 0, 0
                     
-                
                 game 
                 |> Solution.ofGame 
                 |> Solution.withProbability (Some probability)
                 |> Solution.withSweepCounts (solution.PerfectSweeps + perfectSweeps) (solution.ImperfectSweeps + imperfectSweeps)
                 |> solveWithProbability
-                    
-                //find max probability of each sweepable cell of whether it is a mine or not
-                //flag all that are 100% certain that it is a mine
-                //sweep all that are 0% certain that it is a mine
-                //if none, randomly choose 1 cell from those that have the highest probability
-                //reevaulate cells
 
 
 let probabilitySolver = Game.solve Solvers.solveWithProbability
