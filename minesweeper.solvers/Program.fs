@@ -7,9 +7,10 @@ open Results
 
 let rand = new System.Random()
 let createGame i = 
-    (GameFactory.createGame 10 10 1 (rand.Next()), i)
+    (GameFactory.createMediumGame (rand.Next()), i)
 
-let testCases = 10000
+printfn "How many games to test?"
+let testCases = System.Console.ReadLine() |> int
 let games = [0..(testCases - 1)] |> Seq.map createGame
 
 let testSolver (solver:Game->Solution) game = solver game
