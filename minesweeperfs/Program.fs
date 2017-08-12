@@ -71,6 +71,7 @@ let getAction (cursor:Coordinates.Coordinate) key =
     | ConsoleKey.DownArrow -> moveDown
     | ConsoleKey.Q -> quit
     | ConsoleKey.Spacebar -> sweep x y
+    | ConsoleKey.A -> sweepAllHiddenNeighbors x y
     | ConsoleKey.F -> flag x y
     | _ -> id
 

@@ -39,6 +39,28 @@ module Sweep =
         |> sweepCells [index]
         |> Game.testWin
         |> Game.testLoss index
+    
+
+    //sweeps all hidden cells that are neighbors of passed in position.
+    let sweepAllHiddenNeighbors x y game =
+        let rec loop cells game' =
+            match cells with
+            | [] -> game'
+            | x::xs ->
+                game' 
+                |> sweep x.Coords.X x.Coords.Y
+                |> loop xs
+
+        let index = Coordinates.getArrayIndex x y game.GameSize
+        let cell = Game.getCell game index
+        let neighbors = 
+            game
+            |> Game.getNeighborCells cell
+            |> Seq.filter (fun x -> x.State = CellState.Hidden)
+            |> List.ofSeq
+        loop neighbors game
+        
+        
 
 module Flag =
     let flag x y game = 
