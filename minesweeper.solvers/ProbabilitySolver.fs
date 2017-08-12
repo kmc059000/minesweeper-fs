@@ -65,18 +65,18 @@ open Common
             | _ -> 
                 let cellProbabilities = getCellProbabilities solution
                 let cellsToFlag = CellProbability.cellsToFlag cellProbabilities
-                let probability, cellsToSweep = CellProbability.bestCellsToSweep cellProbabilities
+                let bestProbability, bestCellsToSweep = CellProbability.bestCellsToSweep cellProbabilities
                 
                 let game, perfectSweeps, imperfectSweeps =
-                    match (cellsToFlag, probability) with 
-                    | [], 0.0 -> Game.sweepAll cellsToSweep solution.Game, cellsToSweep.Length, 0
-                    | [], _ -> Game.sweepRandom cellsToSweep rand solution.Game, 0, 1
+                    match (cellsToFlag, bestProbability) with 
+                    | [], 0.0 -> Game.sweepAll bestCellsToSweep solution.Game, bestCellsToSweep.Length, 0
+                    | [], _ -> Game.sweepRandom bestCellsToSweep rand solution.Game, 0, 1
                     | mines, _ -> Game.flagAll mines solution.Game, 0, 0
                     
                 game 
                 |> Solution.ofGame 
-                |> Solution.withProbability (Some probability)
-                |> Solution.withSweepCounts (solution.PerfectSweeps + perfectSweeps) (solution.ImperfectSweeps + imperfectSweeps)
+                |> Solution.withProbability bestProbability
+                |> Solution.withSweepCounts perfectSweeps imperfectSweeps
                 |> solveWithProbability
 
 

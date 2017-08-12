@@ -81,7 +81,7 @@ module Solution =
     let flaggedCount = getCount Coordinate.getFlaggedCell
     let hiddenCount = getCount Coordinate.getHiddenCell
 
-    let withProbability p s = { s with LastProbability = p }
+    let withProbability p s = { s with LastProbability = (Some p) }
 
     let withSweepCounts perfect imperfect s = 
         { s with 
