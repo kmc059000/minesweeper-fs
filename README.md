@@ -47,12 +47,40 @@ Unfortunately I was unable to implement this for the following reasons:
 ## Lessons Learned
 
 ### F# is really easy to learn, especially if you know C#
-F# was very easy to pickup. The syntax is fairly simple (yet not as simple as a LISP)
+F# was very easy to pickup. The syntax is fairly simple (yet not as simple as a LISP). Knowing C# and the .NET BCL accelerated the learning curve quite a bit. I felt at home in a functional language where I haven't before. Clojure was difficult to get into since it is based on the JVM and I am not familiar with that ecosystem. I understood how to write clojure but struggled with dealing with libraries, the runtime, etc.
 
 ### F# type inference and compiler are awesome
 I was surprised at how infrequently I had to provide type signatures in my functions. It reduced the noise in my code quite a bit, but still provided type safety. Initially I found myself having to provide type signatures on my functions, but eventually learned patterns to avoid doing so. These patterns are not something I could explain at this point, but I clearly learned them without having to think about them.
 
 I was discussing this with a coworker who claimed that he liked type signatures and found they provided a lot of value and did not think he would enjoy the lack of type signatures in F#. I argued that there are numerous dynamic languages in high use without type signatures at all which does not get in the way of people understanding code. I futher argued that F# is great because it allows you to not provide type signatures, but the compiler will infer and validate types for you.
+
+### Code structure in F# was not immediately apparent
+How do you organize your functions? I went through a few iterations and had to do research to feel like I was doing the right thing.
+
+The ubiquitous [F# for fun and profit book](<https://fsharpforfunandprofit.com/posts/recipe-part3/>) led me in the right direction. I ended up implementing the "second approach" where types are declared in a top level, and declare all functions for that type in a sibling module with the same name as the type. This led to code like the following where the pipelined functions usually are in the form of `{SomeType}.{someFunction}` like `Game.testWin`
+
+```fsharp
+let sweep x y game = 
+let index = Coordinates.getArrayIndex x y game.GameSize
+game 
+|> Game.tryPlaceMines index
+|> sweepCells [index]
+|> Game.testWin
+|> Game.testLoss index
+```
+
+Instead of the following which is a little less clear and readable. It allows readers to understand where a function is implemented and on what it operates on.
+```fsharp
+let sweep x y game = 
+let index = getArrayIndex x y game.GameSize
+game 
+|> tryPlaceMines index
+|> sweepCells [index]
+|> testWin
+|> testLoss index
+```
+
+This style should be further extended to the entire project and I do not think I completed this process.
 
 ### Data Structures
 F# has a handful of built in data structures. It is important to choose the correct one. 
@@ -88,3 +116,22 @@ It took a lot of work to implement the probability solver, and it was disappoint
 ### Solving Minesweeper is an NP-hard problem
 Nearing the end of this project, I searched for algorithms and found this <https://mrgris.com/projects/minesweepr/>
 
+### Anonymous functions are hard to write and hard to read
+
+I do not like how anonymous functions are declared in F#. I find it hard to read compared to C#'s lambdas. 
+
+```fsharp
+let neighbors = 
+game
+|> Game.getNeighborCells cell
+|> Seq.filter (fun x -> x.State = CellState.Hidden)
+|> List.ofSeq
+```
+
+vs C#
+
+```csharp
+neighbors.Where(x => x.State == CellState.Hidden)
+```
+
+This usually leads to me not using anonymous functions and pulling this logic into a declared and named function.
