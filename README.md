@@ -62,7 +62,7 @@ These results are based on the same 2000 games processed by each solver.
 
 ![Solver Stats](/imgs/SolverStats.png)
 
-A perfect sweep is a sweep where the solver was 100% sure a cell was not a mine. An imperfect sweep was when the solver was unsure if a cell was a mine. Minimizing imperfect sweeps should result in a better sovler. The random solver does not track a number of the statistics, only wins/losses stats are relevant.g
+A perfect sweep is a sweep where the solver was 100% sure a cell was not a mine. An imperfect sweep was when the solver was unsure if a cell was a mine. Minimizing imperfect sweeps should result in a better sovler. The random solver does not track a number of the statistics, only wins/losses stats are relevant.
 
 ## Lessons Learned
 
