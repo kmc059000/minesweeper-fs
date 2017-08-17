@@ -28,10 +28,10 @@ This shows a lost game where the user swept a cell with a mine. This reveals the
 ## Solvers
 
 ### Random
-The Random solver works by randomly sweeping cells until loss or completion. Needless to say, this was a very poor solver. I wrote it first to effectively prove the solver framework was working and to use it as a control case.
+The Random solver works by randomly sweeping cells until loss or completion. Needless to say, this was a very poor solver, and usually always fails (I've seen it have a .04% success rate occasionally). I wrote it first to effectively prove the solver framework was working and to use it as a control case.
 
 ### Probability Solver
-This is my best algorithm so far. It does not work well and is relatively naive. The algorithm is as follows:
+This is my best algorithm so far. It does not work well and is relatively naive. It usually solves 50% of games. The algorithm is as follows:
 1. For all hidden cells, find the min and max probability of that mine being a mine. Do this by:
     * For all exposed neighbors of the cell, the probablity of the hidden cell is `(numSurroundingCell - numFlaggedCells) / (numUnflaggedHiddenCells)`. This equation is based on the neighbors counts.
     * If a mine has no exposed neighbors, it's probability is `total remaining mines / total hidden cells`
@@ -56,6 +56,13 @@ Unfortunately I was unable to implement this for the following reasons:
 * F# ML libaries are not simple to use or understand without a lot of background in ML. I did not find anything simple like Keras from python.
 * Due to the above points, this would take considerable time.
 * Lost interest due to the previous point.
+
+### Solver statistics
+These results are based on the same 2000 games processed by each solver.
+
+![Solver Stats](/imgs/SolverStats.png)
+
+A perfect sweep is a sweep where the solver was 100% sure a cell was not a mine. An imperfect sweep was when the solver was unsure if a cell was a mine. Minimizing imperfect sweeps should result in a better sovler. The random solver does not track a number of the statistics, only wins/losses stats are relevant.
 
 ## Lessons Learned
 
