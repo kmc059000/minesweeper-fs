@@ -134,7 +134,11 @@ To solve this, I changed the UI to only rewrite the characters that changed. Thi
 It took a lot of work to implement the probability solver, and it was disappointing. 
 
 ### Solving Minesweeper is an NP-hard problem
-Nearing the end of this project, I searched for algorithms and found this <https://mrgris.com/projects/minesweepr/>
+Nearing the end of this project, I searched for algorithms and found these
+
+<https://mrgris.com/projects/minesweepr/>
+<http://web.mat.bham.ac.uk/R.W.Kaye/minesw/ordmsw.htm>
+
 
 ### Anonymous functions are hard to write and hard to read
 
