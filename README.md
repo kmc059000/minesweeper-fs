@@ -10,7 +10,20 @@ Included are 3 projects:
 
 ## Screenshots
 
-\<screenshot here\>
+Main Menu:
+![Main Menu](/imgs/GamePlay1.png)
+
+Game Play:
+* Yellow `?`'s are flagged cells considered to be mines by users.
+* Green `#`'s is the current cursor position. The gray cells around it are a UI hint to help users to see the hidden cells arond the cursor.
+* White `.`'s are hidden cells
+* `{number}`'s and empty cells are exposed cells with the number representing the number of mines around that cell (empty means 0)
+
+![Game Play](/imgs/GamePlay2.png)
+
+Lost Game:
+This shows a lost game where the user swept a cell with a mine. This reveals the location of the mines as red `*`'s.
+![Lost Game](/imgs/GamePlay3.png)
 
 ## Solvers
 
