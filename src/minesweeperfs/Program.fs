@@ -13,29 +13,29 @@ open MinesweeperUI
 
 //debug <- true
 
-type TopMenuResponse = PlayGame of (int -> Game) | Quit
+type MainMenuResponse = PlayGame of (int -> Game) | Quit
 
-type TopMenuChoice = { Text: string; Choice: TopMenuResponse; }
+type MainMenuChoice = { Text: string; Choice: MainMenuResponse; }
     with member this.Command = this.Text.ToLower().[0].ToString()
 
-type TopMenuChoices = TopMenuChoices of TopMenuChoice list
+type MainMenuChoices = TopMenuChoices of MainMenuChoice list
 
-    module TopMenuChoices =
+    module MainMenuChoices =
         let tryFind key (TopMenuChoices choices) = 
             choices |> List.tryFind (fun c -> c.Command = key)
 
         let asStrings (TopMenuChoices choices) =
             choices |> Seq.map (fun c -> c.Command + " - " + c.Text)
             
-    module TopMenuChoice =
+    module MainMenuChoice =
         let create text resp = { Text= text; Choice = resp; }
 
 let menuChoices = 
     TopMenuChoices [
-        TopMenuChoice.create "Quit" Quit
-        TopMenuChoice.create "Easy"  (PlayGame GameFactory.createEasyGame)
-        TopMenuChoice.create "Medium"  (PlayGame GameFactory.createMediumGame)
-        TopMenuChoice.create "Hard"  (PlayGame GameFactory.createMediumGame)
+        MainMenuChoice.create "Quit" Quit
+        MainMenuChoice.create "Easy"  (PlayGame GameFactory.createEasyGame)
+        MainMenuChoice.create "Medium"  (PlayGame GameFactory.createMediumGame)
+        MainMenuChoice.create "Hard"  (PlayGame GameFactory.createMediumGame)
     ]
 
 let resetColors _ = 
@@ -45,11 +45,11 @@ let resetColors _ =
 let rec requestGameSize _ = 
     resetColors()
     printfn "What difficulty would you like to play? (type the number)"
-    menuChoices |> TopMenuChoices.asStrings |> Seq.iter (printfn "%s")
+    menuChoices |> MainMenuChoices.asStrings |> Seq.iter (printfn "%s")
 
     let option = Console.ReadKey().KeyChar.ToString()
-    let difficulty = TopMenuChoices.tryFind option menuChoices
-    match difficulty with
+    let chosenChoice = MainMenuChoices.tryFind option menuChoices
+    match chosenChoice with
     | Some resp -> resp.Choice
     | None ->
         Console.Clear()
@@ -61,9 +61,9 @@ let printGame previousDisplay game =
     printConsoleText ConsoleCoords.origin previousDisplay newDisplay
     newDisplay
 
-let getAction (cursor:Coordinates.Coordinate) key =
-    let x = cursor.X
-    let y = cursor.Y
+let getAction game key =
+    let x = game.CursorPosition.X
+    let y = game.CursorPosition.Y
     match key with
     | ConsoleKey.LeftArrow -> moveLeft
     | ConsoleKey.RightArrow -> moveRight
@@ -87,7 +87,7 @@ let gameloop initialGame =
     while game.State <> GameState.Quit do
         console <- printGame console game
         let key = Console.ReadKey().Key
-        let handleAction = getAction game.CursorPosition key
+        let handleAction = getAction game key
         game <- handleAction game
 
 //unpure
