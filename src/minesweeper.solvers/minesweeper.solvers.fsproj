@@ -60,6 +60,7 @@
     <Compile Include="Common.fs" />
     <Compile Include="ProbabilitySolver.fs" />
     <Compile Include="RandomSolver.fs" />
+    <Compile Include="Solvers.fs" />
     <Compile Include="Results.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
