@@ -13,39 +13,39 @@ type ConsoleOutput = {
     Coords: ConsoleCoords
 }
 
-    module ConsoleString =
-        let create text foreground background = { Text = text; Foreground = foreground; Background = background }
+module ConsoleString =
+    let create text foreground background = { Text = text; Foreground = foreground; Background = background }
 
-    module ConsoleCoords =
-        let create x y = { X = x; Y = y; }
-        let origin = create 0 0
+module ConsoleCoords =
+    let create x y = { X = x; Y = y; }
+    let origin = create 0 0
 
-    module ConsoleOutput =
-        let emptyUI = List.empty<ConsoleOutput>
+module ConsoleOutput =
+    let emptyUI = List.empty<ConsoleOutput>
 
-        let private isNewLine s = s = '\n'
+    let private isNewLine s = s = '\n'
 
-        let private  newLineCount s = s |> String.filter isNewLine |> String.length
+    let private  newLineCount s = s |> String.filter isNewLine |> String.length
 
-        let private lengthAfterLastNewLine hasNewLines s =
-            match hasNewLines with
-            | false -> String.length s
-            | true -> (String.length s) - s.LastIndexOf('\n')
+    let private lengthAfterLastNewLine hasNewLines s =
+        match hasNewLines with
+        | false -> String.length s
+        | true -> (String.length s) - s.LastIndexOf('\n')
 
-        let private getNewCoords coords s = 
-            let yDiff = s |> newLineCount
-            let xDiff = s |> lengthAfterLastNewLine (yDiff > 0)
-            let newX = if yDiff > 0 then 0 else coords.X + xDiff
-            let newY = coords.Y + yDiff
-            { X = newX; Y = newY }
+    let private getNewCoords coords s = 
+        let yDiff = s |> newLineCount
+        let xDiff = s |> lengthAfterLastNewLine (yDiff > 0)
+        let newX = if yDiff > 0 then 0 else coords.X + xDiff
+        let newY = coords.Y + yDiff
+        { X = newX; Y = newY }
 
-        let rec withCoords startCoords lst =
-            match lst with
-            | [] -> []
-            | x::xs -> 
-                let item = { String = x; Coords = startCoords; }
-                let newCoords = getNewCoords startCoords x.Text
-                item :: (withCoords newCoords xs)
+    let rec withCoords startCoords lst =
+        match lst with
+        | [] -> []
+        | x::xs -> 
+            let item = { String = x; Coords = startCoords; }
+            let newCoords = getNewCoords startCoords x.Text
+            item :: (withCoords newCoords xs)
 
 
 let private pringConsoleText next =
