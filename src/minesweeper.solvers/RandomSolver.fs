@@ -5,7 +5,7 @@ open Common
 
 let private rand = new System.Random()
 
-let rec solve (solution:Solution) = 
+let rec solve solution = 
     match solution.SolutionState with
     | Win | Dead -> solution
     | _ -> 
