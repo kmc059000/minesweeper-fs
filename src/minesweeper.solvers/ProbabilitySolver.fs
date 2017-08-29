@@ -57,7 +57,7 @@ module private ProbabilityCalculator =
         |> Seq.choose Coordinate.getHiddenCell
         |> Seq.map (getCellProbability solution solutionProbability)
 
-let rand = new System.Random()
+let rand = new System.Random(1)
 
 let rec solve solution = 
     match solution.SolutionState with

@@ -34,21 +34,45 @@ module private ProbabilityCalculator =
         let flaggedCount = solution |> Solution.flaggedCount |> float
         let hiddenCount = solution |> Solution.hiddenCount |> float
         (totalMines - flaggedCount) / hiddenCount
+    
+
+    let getPatternProbability (cell:HiddenCell) solution =
+        let neighbors = 
+            cell.Coords 
+            |> Coordinate.getNeighbors solution
+            |> Seq.map (fun c -> 
+                match c with
+                | Hidden h -> "H"
+                | Exposed e -> e.SurroundingCount.ToString()
+                | Flagged f -> "F")
+            |> Seq.toList
+
+        match neighbors with
+        | ["1"; "2"; "1"; "H"; "H"; "H"; _; _; _;] 
+        | [_; _; _; "H"; "H"; "H"; "1"; "2"; "1";] 
+        | [_; "H"; "1"; _; "H"; "2"; _; "H"; "1";]
+        | ["1"; "H"; _; "2"; "H"; _; "1"; "H"; _;] -> Some 0.0
+        | _ -> None
 
     //returns the probability of the hidden cell being a mine.
     //if there are any exposed neighbors, then the probability is the highest probability that this cell is that neighbors mine
     //otherwise, this cell's probability is the number of remaining mines / number of hidden cells
     let getCellProbability solution solutionProbability (cell:HiddenCell) =
-        let probabilities = 
-            cell.Coords 
-            |> Coordinate.getExposedNeighbors solution 
-            |> Seq.map (getMineProbabilityOfCell solution)
-            |> Seq.toList
-        let probabilityRange = 
-            match probabilities.Length with
-            | 0 -> { Min = solutionProbability; Max = solutionProbability }
-            | _ -> { Min = probabilities |> Seq.min; Max = probabilities |> Seq.max }
-        { Cell = cell; ProbabilityRange = probabilityRange; }
+        let patternProbability = getPatternProbability cell solution
+
+        match patternProbability with
+        | Some p -> { Cell = cell; ProbabilityRange = { Min = p; Max = p }; }
+        | None -> 
+            let probabilities = 
+                cell.Coords 
+                |> Coordinate.getExposedNeighbors solution 
+                |> Seq.map (getMineProbabilityOfCell solution)
+                |> Seq.toList
+            let probabilityRange = 
+                match probabilities.Length with
+                | 0 -> { Min = solutionProbability; Max = solutionProbability }
+                | _ -> { Min = probabilities |> Seq.min; Max = probabilities |> Seq.max }
+            { Cell = cell; ProbabilityRange = probabilityRange; }
 
     let getCellProbabilities solution =  
         let solutionProbability = solutionMineProbability solution
@@ -57,7 +81,7 @@ module private ProbabilityCalculator =
         |> Seq.choose Coordinate.getHiddenCell
         |> Seq.map (getCellProbability solution solutionProbability)
 
-let rand = new System.Random()
+let rand = new System.Random(1)
 
 let rec solve solution = 
     match solution.SolutionState with

@@ -58,6 +58,10 @@ module Coordinate =
     let getHiddenNeighbors = getNeighborsOfType getHiddenCell
     let getExposedNeighbors = getNeighborsOfType getExposedCell
 
+    let getNeighbors solution coords =
+        Coordinates.getValidSurroundingIndexes coords
+        |> Seq.map (fun idx -> solution.Cells.[idx])
+
 module Cell =
     let private callWithCoords fn solution cell = fn solution cell.Coords
     let private getFlaggedNeighbors = callWithCoords Coordinate.getFlaggedNeighbors
