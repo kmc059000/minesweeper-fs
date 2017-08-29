@@ -35,5 +35,6 @@ let main argv =
     printfn "" 
     SolutionStats.printResults "Random" (runSolverTests Solvers.randomSolver)
     SolutionStats.printResults "Probability" (runSolverTests Solvers.probabilitySolver)
+    SolutionStats.printResults "BetterProbability" (runSolverTests Solvers.betterProbabilitySolver)
     let r = System.Console.ReadLine()
     0
