@@ -28,6 +28,9 @@ module Cells =
 
     let withSurroundingCount mineLocations cell =
         { cell with SurroundingCount = Some (getSurroundingCount mineLocations cell) }
+
+    let getState cell = cell.State
+
     
     
 

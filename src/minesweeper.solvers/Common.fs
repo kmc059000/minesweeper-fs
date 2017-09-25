@@ -25,6 +25,8 @@ type Solution = {
     ImperfectSweeps: int;
 }
 
+type Command = Flag of (Coordinate Set) | Sweep of (Coordinate Set) | SweepRandom of (Coordinate Set)
+
 module Coordinate =
     //i wish i could find a way to write these 3 functions as the same generic function
     let getExposedCell cell =
@@ -62,6 +64,8 @@ module Coordinate =
         Coordinates.getValidSurroundingIndexes coords
         |> Seq.map (fun idx -> solution.Cells.[idx])
 
+    let ofHiddenCell (c:HiddenCell) = c.Coords
+
 module Cell =
     let private callWithCoords fn solution cell = fn solution cell.Coords
     let private getFlaggedNeighbors = callWithCoords Coordinate.getFlaggedNeighbors
@@ -74,6 +78,8 @@ module Cell =
 
      
 module Solution =
+    open System
+
     let cellsToSeq s = s.Cells |> Map.toSeq |> Seq.map snd
 
     let private getCount whereCellTypeMatches solution = 
@@ -102,7 +108,10 @@ module Solution =
             | CellState.Hidden -> (c.Coords.Index, Hidden { Coords = c.Coords; TotalNeighbors = c.TotalNeighbors;
             })
             | CellState.Exposed -> (c.Coords.Index, Exposed { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
-            | CellState.Flagged -> (c.Coords.Index, Flagged { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
+            | CellState.Flagged -> 
+                match c.SurroundingCount with
+                | Some count -> c.Coords.Index, Flagged { Coords = c.Coords; SurroundingCount = count }
+                | None -> failwith "Flagged a cell that is not a mine"
 
         let cells = game.Cells |> Map.toSeq |> Seq.map snd |> Seq.map getSolutionCell |> Map.ofSeq
         let state = 
