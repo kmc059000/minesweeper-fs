@@ -35,7 +35,7 @@ let private withCommand game cell command str =
         match (Set.contains coords commandCoords) with
         | true -> { str with Text = "S"; Background = ConsoleColor.Green; }
         | false -> str
-    | Some (Common.SweepRandom commandCoords) -> 
+    | Some (Common.SweepRandom (commandCoords, _)) -> 
         match (Set.contains coords commandCoords) with
         | true -> { str with Text = "R"; Background = ConsoleColor.DarkGreen; }
         | false -> str

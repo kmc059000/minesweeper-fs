@@ -20,6 +20,9 @@ type OffsetCoordinate = { Pattern: PatternCellValue; Coordinates: Coordinates.Co
 type OffsetCell = { Pattern: PatternCellValue; Cell: Cell option; }
 
 
+module PatternType =
+    let priority t = if t = Sweepable then 0 else 1
+
 module OffsetCoordinates =
     let isValid offsetCoords = Coordinates.Coordinates.isValid offsetCoords.Coordinates
 
@@ -235,7 +238,7 @@ module private ProbabilityCalculator =
         |> Seq.choose testPattern
         |> Seq.distinct
         //prioritize empty cells over flaggable cells
-        |> Seq.sortBy (fun t -> if t = Sweepable then 0 else 1)
+        |> Seq.sortBy PatternType.priority
         |> Seq.tryHead
         
 
@@ -282,28 +285,23 @@ let solveStep solution =
     let cellsToFlag = CellProbability.cellsToFlag cellProbabilities
     let bestProbability, bestCellsToSweep = CellProbability.bestCellsToSweep cellProbabilities
                     
-    let command, perfectSweeps, imperfectSweeps, bestProbability =
-        let toCoords (cells:HiddenCell list) = cells |> Seq.map (fun c -> c.Coords) |> Set.ofSeq
-        let bestCoordsToSweep = bestCellsToSweep |> toCoords
-        match (cellsToFlag, bestProbability) with
-        | [], 0.0 -> Sweep bestCoordsToSweep, bestCellsToSweep.Length, 0, 0.0
-        | [], _ -> SweepRandom bestCoordsToSweep, 0, 1, bestProbability
-        | mines, _ -> Flag (mines |> toCoords), 0, 0, 0.0
-
-    command, perfectSweeps, imperfectSweeps, bestProbability
+    let toCoords (cells:HiddenCell list) = cells |> Seq.map (fun c -> c.Coords) |> Set.ofSeq
+    let bestCoordsToSweep = bestCellsToSweep |> toCoords
+    match (cellsToFlag, bestProbability) with
+    | [], 0.0 -> Sweep bestCoordsToSweep
+    | [], _ -> SweepRandom (bestCoordsToSweep, bestProbability)
+    | mines, _ -> Flag (mines |> toCoords)
     
 let nextCommand solution = 
     match solution.SolutionState with
         | Win | Dead -> None
-        | _ ->
-            let command, _, _, _ = solveStep solution
-            Some command
+        | _ -> Some (solveStep solution)
 
 let handleCommand command perfectSweeps imperfectSweeps bestProbability solution =
     let game =
         match command with
         | Sweep coords -> Game.sweepAllCoords (coords |> Set.toList) solution.Game
-        | SweepRandom coords -> Game.sweepRandomCoord coords rand solution.Game
+        | SweepRandom (coords, _) -> Game.sweepRandomCoord coords rand solution.Game
         | Flag coords -> Game.flagAllCoords (coords |> Set.toList) solution.Game
 
     game 
@@ -315,7 +313,12 @@ let rec solve solution =
     match solution.SolutionState with
     | Win | Dead -> solution
     | _ ->
-        let command, perfectSweeps, imperfectSweeps, bestProbability = solveStep solution
+        let command = solveStep solution
+        let perfectSweeps, imperfectSweeps, bestProbability =
+            match command with
+            | Flag _ -> 0, 0, 0.0
+            | Sweep c -> c.Count, 0, 1.0
+            | SweepRandom (c, probability) -> 0, 1, probability
 
         solution 
         |> (handleCommand command perfectSweeps imperfectSweeps bestProbability)

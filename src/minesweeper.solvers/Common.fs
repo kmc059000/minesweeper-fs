@@ -25,7 +25,7 @@ type Solution = {
     ImperfectSweeps: int;
 }
 
-type Command = Flag of (Coordinate Set) | Sweep of (Coordinate Set) | SweepRandom of (Coordinate Set)
+type Command = Flag of (Coordinate Set) | Sweep of (Coordinate Set) | SweepRandom of (Coordinate Set)*float
 
 module Coordinate =
     //i wish i could find a way to write these 3 functions as the same generic function
