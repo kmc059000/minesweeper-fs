@@ -5,7 +5,7 @@ open Results
 
 let rand = new System.Random()
 let createGame i = 
-    (GameFactory.createMediumGame (rand.Next()), i)
+    (GameFactory.createEasyGame (rand.Next()), i)
 
 printfn "How many games to test?"
 let testCases = System.Console.ReadLine() |> int
