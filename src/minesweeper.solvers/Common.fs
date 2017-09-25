@@ -128,20 +128,29 @@ module Game =
     open Commands.Sweep
     open Commands.Flag
 
-    let rec sweepAll (cells:HiddenCell list) game =
-        match cells with
+    let private cellToCoords cells = cells |> Seq.map Coordinate.ofHiddenCell |> Seq.toList
+
+    let rec sweepAllCoords coords game =
+        match coords with
         | [] -> game
         | x::xs ->
             game
-            |> sweep x.Coords.X x.Coords.Y
-            |> sweepAll xs
+            |> sweep x.X x.Y
+            |> sweepAllCoords xs
+
+    let sweepAll (cells:HiddenCell list) game =
+        sweepAllCoords (cellToCoords cells) game
         
-    let rec flagAll (cells:HiddenCell list) game =
-        match cells with
+    let rec flagAllCoords coords game =
+        match coords with
         | [] -> game
         | x::xs ->
-            game |> flag x.Coords.X x.Coords.Y
-            |> flagAll xs
+            game 
+            |> flag x.X x.Y
+            |> flagAllCoords xs
+
+    let flagAll (cells:HiddenCell list) game =
+        flagAllCoords (cellToCoords cells) game
 
     let getRandom (rand:System.Random) xs =
         let idx = rand.Next(List.length xs)
@@ -153,10 +162,14 @@ module Game =
         |> Seq.minBy (fun (k,_) -> k)
         |> snd
 
+    let sweepRandomCoord coords (rand:System.Random) game =
+        let bestCoords = coords |> Seq.toList
+        let coord = bestCoords |> getRandom rand
+        sweepAllCoords [coord] game
+
     let sweepRandom cells (rand:System.Random) game =
-        let bestCells = cells |> filterToFewestNeighbors |> Seq.toList
-        let cell = bestCells |> getRandom rand
-        sweepAll [cell] game
+        let coords = cells |> cellToCoords 
+        sweepRandomCoord coords rand game
 
     let solve solver (game:Game) =
         game |> Solution.ofGame |> solver
