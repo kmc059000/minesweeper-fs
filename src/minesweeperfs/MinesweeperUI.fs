@@ -23,6 +23,23 @@ let private highlightCursorNeighbor game cell str =
     | true -> { str with Background = ConsoleColor.DarkGray }
     | _ -> str
 
+let private withCommand game cell command str =
+    let coords = cell.Coords
+    match command with
+    | None -> str
+    | Some (Common.Flag commandCoords) -> 
+        match (Set.contains coords commandCoords) with
+        | true -> { str with Text = "F"; Background = ConsoleColor.Red; }
+        | false -> str
+    | Some (Common.Sweep commandCoords) -> 
+        match (Set.contains coords commandCoords) with
+        | true -> { str with Text = "S"; Background = ConsoleColor.Green; }
+        | false -> str
+    | Some (Common.SweepRandom commandCoords) -> 
+        match (Set.contains coords commandCoords) with
+        | true -> { str with Text = "R"; Background = ConsoleColor.DarkGreen; }
+        | false -> str
+
 let private hiddenCell game cell =
     match debug, cell.IsMine with
     | true,true -> mineText
@@ -44,7 +61,7 @@ let private getExposedCharText game cell =
             | _ -> ConsoleColor.Red
         ConsoleString.create (i.ToString()) color ConsoleColor.Black           
             
-let private getCellChar game cell =
+let private getCellChar game command cell =
     let exposedChar = lazy (getExposedCharText game cell)
     match game.CursorPosition = cell.Coords with
     | true -> cursorText
@@ -52,26 +69,29 @@ let private getCellChar game cell =
         match (cell.State, game.State) with
         | (_, Dead) 
         | (Exposed, _) ->  exposedChar.Value
-        | (Hidden, _) -> hiddenCell game cell |> highlightCursorNeighbor game cell 
+        | (Hidden, _) -> 
+            hiddenCell game cell 
+            |> highlightCursorNeighbor game cell
+            |> withCommand game cell command
         | (Flagged, _) -> flagText        
 
-let private getRowText game row = 
+let private getRowText game command row =
     let left = ConsoleString.create "║" ConsoleColor.Green ConsoleColor.Black
     let right = ConsoleString.create "║\r\n" ConsoleColor.Green ConsoleColor.Black
     let inner = 
         row 
-        |> Seq.map (getCellChar game)
+        |> Seq.map (getCellChar game command)
         |> Seq.collect (fun cellChar -> [cellChar; (defaultText " ")])
         |> Seq.toList
     left :: (inner @ [right])
 
-let private getRowsText game =
+let private getRowsText command game =
     game.Cells
         |> Map.toList
         |> List.map snd
         |> List.sortBy (fun c -> c.Coords.Index)
         |> List.chunkBySize game.GameSize.Width
-        |> List.map (getRowText game)
+        |> List.map (getRowText game command)
 
 let private getGameBorder left right game = 
     let inside =
@@ -96,8 +116,8 @@ let private getGameMessage game =
     | Quit -> 
         "Quitter!"
 
-let getGameDisplay game = 
-    let rows = game |> getRowsText |> List.collect id        
+let getGameDisplay game (command:Common.Command option) = 
+    let rows = game |> getRowsText command |> List.collect id        
 
     let top = [
         defaultText "F# Minesweeper\r\n";

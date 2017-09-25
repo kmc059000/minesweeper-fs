@@ -10,6 +10,7 @@ open Commands.Quit
 
 open ConsolePrinting
 open MinesweeperUI
+open BetterProbabilitySolver
 
 //debug <- true
 
@@ -57,11 +58,20 @@ let rec requestGameSize _ =
         requestGameSize()
 
 let printGame previousDisplay game =
-    let newDisplay = getGameDisplay game
+    let newDisplay = getGameDisplay game None
     printConsoleText ConsoleCoords.origin previousDisplay newDisplay
     newDisplay
 
-let getAction game key =
+let printGameWithHint previousDisplay command game =
+    let newDisplay = getGameDisplay game command
+    printConsoleText ConsoleCoords.origin previousDisplay newDisplay
+    newDisplay
+
+let handleCommand command game =
+    let sln = BetterProbabilitySolver.handleCommand command 0 0 0.0 (Common.Solution.ofGame game)
+    sln.Game
+
+let getAction game key command =
     let x = game.CursorPosition.X
     let y = game.CursorPosition.Y
     match key with
@@ -73,6 +83,10 @@ let getAction game key =
     | ConsoleKey.Spacebar -> sweep x y
     | ConsoleKey.A -> sweepAllHiddenNeighbors x y
     | ConsoleKey.F -> flag x y
+    | ConsoleKey.R -> 
+        match command with
+        | Some c -> handleCommand c
+        | None -> id
     | _ -> id
 
 
@@ -85,9 +99,10 @@ let gameloop initialGame =
     let mutable game = initialGame
 
     while game.State <> GameState.Quit do
-        console <- printGame console game
+        let command = BetterProbabilitySolver.nextCommand (Common.Solution.ofGame game)
+        console <- printGameWithHint console command game
         let key = Console.ReadKey().Key
-        let handleAction = getAction game key
+        let handleAction = getAction game key command
         game <- handleAction game
 
 //unpure

@@ -81,6 +81,11 @@
       <Project>{cabc7781-e217-415d-bada-7695f7b934b7}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\minesweeper.solvers\minesweeper.solvers.fsproj">
+      <Name>minesweeper.solvers</Name>
+      <Project>{4a767acc-3fcf-4a1c-b3e6-16f3dbecab59}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
