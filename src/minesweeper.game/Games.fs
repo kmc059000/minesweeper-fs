@@ -3,6 +3,7 @@
 open Coordinates
 open Cells
 open Cells.Cells
+open FSharpUtils
 
 type GameState = Start | Playing | Win | Dead | Quit
 
@@ -53,15 +54,14 @@ module Game =
         | GameState.Start -> placeMines game lastSelectedIndex
         | _ -> game
 
-    let isWin cells = 
-        cells
+    let isWin game = 
+        game.Cells
         |> Map.toSeq
         |> Seq.map snd
-        |> Seq.exists (fun x -> not x.IsMine && x.State <> CellState.Exposed)
-        |> not
+        |> Seq.all (fun x -> x.IsMine || x.State = CellState.Exposed)
 
     let testWin game =
-        let isWin = isWin game.Cells
+        let isWin = isWin game
         match isWin with
         | true -> { game with State = Win }
         | false -> game

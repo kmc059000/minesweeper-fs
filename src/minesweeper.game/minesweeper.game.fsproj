@@ -51,6 +51,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="FSharpUtils.fs" />
     <Compile Include="Coordinates.fs" />
     <Compile Include="Cell.fs" />
     <Compile Include="Games.fs" />
