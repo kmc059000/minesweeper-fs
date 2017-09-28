@@ -82,6 +82,12 @@ module Game =
         |> Coordinates.getValidSurroundingIndexes
         |> Seq.map (getCell game)
 
+    let filterNeighborCells cell predicate game =
+        cell.Coords
+        |> Coordinates.getValidSurroundingIndexes
+        |> Seq.map (getCell game)
+        |> Seq.filter predicate
+
     let incrementExposedCount game = { game with ExposedCount = game.ExposedCount + 1 }
         
 

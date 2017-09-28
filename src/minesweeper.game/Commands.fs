@@ -54,15 +54,22 @@ module Sweep =
 
         let index = Coordinates.getArrayIndex x y game.GameSize
         let cell = Game.getCell game index
-        let neighbors = 
-            game
-            |> Game.getNeighborCells cell
-            |> Seq.filter (fun x -> x.State = CellState.Hidden)
-            |> List.ofSeq
-        loop neighbors game
-        
-        
+        let mineCount = cell.SurroundingCount |> Option.defaultValue 0
 
+        let hiddenNeighbors = 
+            game
+            |> Game.filterNeighborCells cell Cells.isHidden
+            |> List.ofSeq
+
+        let flaggedCount = 
+            game
+            |> Game.filterNeighborCells cell Cells.isFlagged
+            |> Seq.length
+
+        match cell.State, flaggedCount = mineCount with
+        | Exposed, true -> loop hiddenNeighbors game
+        | _ -> game
+        
 module Flag =
     let flag x y game = 
         let index = Coordinates.getArrayIndex x y game.GameSize

@@ -29,5 +29,8 @@ module Cells =
     let withSurroundingCount mineLocations cell =
         { cell with SurroundingCount = Some (getSurroundingCount mineLocations cell) }
     
+    let isHidden c = c.State = Hidden
+    let isExposed c = c.State = Exposed
+    let isFlagged c = c.State = Flagged
     
 
