@@ -35,5 +35,23 @@ module Cells =
     let isMine c = c.IsMine
 
     let getIndex c = c.Coords.Index
+
+module CellFactory =
+    let initCell gameSize index =
+        let coords = 
+            {
+                Index = index
+                X = index % gameSize.Width
+                Y = index / gameSize.Width
+                GameSize = gameSize
+            
+            }
+        let totalNeighbors = coords |> Coordinates.getValidSurroundingIndexes |> Seq.length
+
+        { State = Hidden;
+            Coords = coords;
+            IsMine = false;
+            SurroundingCount = None;
+            TotalNeighbors = totalNeighbors; }
     
 

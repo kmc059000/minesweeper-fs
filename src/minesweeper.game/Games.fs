@@ -92,24 +92,9 @@ module Game =
 module GameFactory =
     let createGame width height mineCount seed =
         let gameSize = { Width = width; Height = height; }
-
-        let initCell index = 
-            let coords = 
-                { Index = index;
-                  X = index % gameSize.Width;
-                  Y = index / gameSize.Width;
-                  GameSize = gameSize; }
-            let totalNeighbors = coords |> Coordinates.getValidSurroundingIndexes |> Seq.length
-
-            { State = Hidden;
-              Coords = coords;
-              IsMine = false;
-              SurroundingCount = None;
-              TotalNeighbors = totalNeighbors; }
-
         let cells = 
             [0..((width * height) - 1)] 
-            |> Seq.map initCell
+            |> Seq.map (CellFactory.initCell gameSize)
             |> Seq.map (fun c -> (c.Coords.Index,c))
             |> Map.ofSeq
         {
