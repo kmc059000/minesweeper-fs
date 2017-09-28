@@ -3,34 +3,36 @@
 open Coordinates
 open Cells
 open Games
+open FSharpUtils
 
 module Sweep =
-    let getNeighborsToSweep index game =
-        let cell = game.Cells.[index]
-        match cell.State with
-        | Hidden-> 
+    let private getNeighborsToSweep cell game =
+        match cell.SurroundingCount, cell.State with
+        | Some 0, Hidden -> 
             game
             |> Game.getNeighborCells cell
-            |> Seq.filter (fun x -> x.IsMine = false)
-            |> Seq.map (fun x -> x.Coords.Index)
+            |> Seq.filterMap Cells.isMine Cells.getIndex
             |> List.ofSeq
         | _ -> []
 
+    let trySetExposed (cell:Cell) game =
+        match cell.State with
+        | CellState.Exposed -> game
+        | _ -> 
+            game 
+            |> Game.setCellState cell.Coords.Index Exposed
+            |> Game.incrementExposedCount
+
     //this will auto-sweep the surrounding cells if the sweeped cell has 0 surrounding mines.
-    let rec sweepCells indexes game =
+    let rec private sweepCells indexes game =
         match indexes with 
         | [] -> game
         | x::xs ->
             let cell = game.Cells.[x]
-            let surrounding =
-                match cell.SurroundingCount with
-                | Some 0 -> getNeighborsToSweep x game
-                | _ -> []
-            game 
-            |> Game.setCellState x Exposed
-            |> Game.incrementExposedCount 
-            |> sweepCells surrounding
-            |> sweepCells xs
+            let neighborsToSweep = getNeighborsToSweep cell game
+            game
+            |> trySetExposed cell           
+            |> sweepCells (neighborsToSweep @ xs)
 
 
     let sweep x y game = 
@@ -81,6 +83,7 @@ module Flag =
             | _ -> id, 0
         let newGame = flag game
         { newGame with FlagCount = newGame.FlagCount + flagDiff }
+        |> Game.testWin
 
 
 module Move =

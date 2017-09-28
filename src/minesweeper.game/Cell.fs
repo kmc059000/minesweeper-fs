@@ -32,5 +32,8 @@ module Cells =
     let isHidden c = c.State = Hidden
     let isExposed c = c.State = Exposed
     let isFlagged c = c.State = Flagged
+    let isMine c = c.IsMine
+
+    let getIndex c = c.Coords.Index
     
 

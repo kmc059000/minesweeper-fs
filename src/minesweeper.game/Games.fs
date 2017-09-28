@@ -18,6 +18,7 @@ type Game = {
     Random: System.Random;
     FlagCount: int;
     ExposedCount: int;
+    CellCount: int;
 };
 
 
@@ -55,10 +56,7 @@ module Game =
         | _ -> game
 
     let isWin game = 
-        game.Cells
-        |> Map.toSeq
-        |> Seq.map snd
-        |> Seq.all (fun x -> x.IsMine || x.State = CellState.Exposed)
+        game.FlagCount = game.MineCount && game.ExposedCount + game.FlagCount = game.CellCount
 
     let testWin game =
         let isWin = isWin game
@@ -123,6 +121,7 @@ module GameFactory =
             MineCount = mineCount;
             FlagCount = 0;
             ExposedCount = 0;
+            CellCount = width * height;
             Seed = seed;
             Random = new System.Random(seed);
         }

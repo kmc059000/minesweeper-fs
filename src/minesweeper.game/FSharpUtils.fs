@@ -9,3 +9,5 @@ module Seq =
             state <- f e.Current
         state
 
+    let filterMap filter mapper = Seq.filter filter >> Seq.map mapper
+
