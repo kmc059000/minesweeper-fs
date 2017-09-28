@@ -28,6 +28,7 @@ module Sweep =
                 | _ -> []
             game 
             |> Game.setCellState x Exposed
+            |> Game.incrementExposedCount 
             |> sweepCells surrounding
             |> sweepCells xs
 

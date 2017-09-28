@@ -16,6 +16,7 @@ type Game = {
     Seed: int;
     Random: System.Random;
     FlagCount: int;
+    ExposedCount: int;
 };
 
 
@@ -80,6 +81,8 @@ module Game =
         cell.Coords
         |> Coordinates.getValidSurroundingIndexes
         |> Seq.map (getCell game)
+
+    let incrementExposedCount game = { game with ExposedCount = game.ExposedCount + 1 }
         
 
 module GameFactory =
@@ -113,6 +116,7 @@ module GameFactory =
             MineLocations = None;
             MineCount = mineCount;
             FlagCount = 0;
+            ExposedCount = 0;
             Seed = seed;
             Random = new System.Random(seed);
         }
