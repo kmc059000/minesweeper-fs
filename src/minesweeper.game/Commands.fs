@@ -11,7 +11,7 @@ module Sweep =
         | Some 0, Hidden -> 
             game
             |> Game.getNeighborCells cell
-            |> Seq.filterMap Cells.isMine Cells.getIndex
+            |> Seq.filterMap Cells.isNotMine Cells.getIndex
             |> List.ofSeq
         | _ -> []
 
