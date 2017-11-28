@@ -49,7 +49,8 @@ let private getCellChar game cell =
     match game.CursorPosition = cell.Coords with
     | true -> cursorText
     | false ->
-        match (cell.State, game.State) with
+        let cellState = Game.getCellState cell.Coords.Index game
+        match (cellState, game.State) with
         | (_, Dead) 
         | (Exposed, _) ->  exposedChar.Value
         | (Hidden, _) -> hiddenCell game cell |> highlightCursorNeighbor game cell 

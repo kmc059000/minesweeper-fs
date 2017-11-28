@@ -7,7 +7,8 @@ open FSharpUtils
 
 module Sweep =
     let private getNeighborsToSweep cell game =
-        match cell.SurroundingCount, cell.State with
+        let cellState = Game.getCellState cell.Coords.Index game
+        match cell.SurroundingCount, cellState with
         | Some 0, Hidden -> 
             game
             |> Game.getNeighborCells cell
@@ -16,7 +17,8 @@ module Sweep =
         | _ -> []
 
     let trySetExposed (cell:Cell) game =
-        match cell.State with
+        let cellState = Game.getCellState cell.Coords.Index game
+        match cellState with
         | CellState.Exposed -> game
         | _ -> 
             game 
@@ -60,24 +62,25 @@ module Sweep =
 
         let hiddenNeighbors = 
             game
-            |> Game.filterNeighborCells cell Cells.isHidden
+            |> Game.filterNeighborCells cell (Game.isCellHidden game)
             |> List.ofSeq
 
         let flaggedCount = 
             game
-            |> Game.filterNeighborCells cell Cells.isFlagged
+            |> Game.filterNeighborCells cell (Game.isCellFlagged game)
             |> Seq.length
 
-        match cell.State, flaggedCount = mineCount with
+        let cellState = Game.getCellState index game
+        match cellState, flaggedCount = mineCount with
         | Exposed, true -> loop hiddenNeighbors game
         | _ -> game
         
 module Flag =
     let flag x y game = 
         let index = Coordinates.getArrayIndex x y game.GameSize
-        let cell = Game.getCell game index
+        let cellState = Game.getCellState index game
         let flag, flagDiff = 
-            match cell.State with
+            match cellState with
             | CellState.Hidden -> Game.setCellState index Flagged, 1
             | CellState.Flagged -> Game.setCellState index Hidden, -1
             | _ -> id, 0

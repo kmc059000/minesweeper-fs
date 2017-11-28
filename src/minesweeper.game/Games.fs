@@ -12,6 +12,8 @@ type Game = {
     Cells: Map<int, Cell>;
     State: GameState;
     GameSize: GameSize;
+    FlaggedLocations: Set<int>;
+    ExposedLocations: Set<int>;
     MineLocations: Set<int> option;
     MineCount: int;
     Seed: int;
@@ -70,10 +72,33 @@ module Game =
         | true -> { game with State = GameState.Dead; }
         | false -> game
 
+    let getCellState index game =
+        let isExposed = game.ExposedLocations |> Set.contains index
+        let isFlagged = game.FlaggedLocations |> Set.contains index
+        match isExposed, isFlagged with
+        | true, _ -> CellState.Exposed
+        | _, true -> CellState.Flagged
+        | _ -> CellState.Hidden
+
     let setCellState index state game =
-        let cell = getCell game index
-        let newCells = game.Cells |> Map.add index { cell with State = state; }
-        { game with Cells = newCells}
+        let (flagAction, exposeAction) = 
+            match state with
+            | CellState.Exposed -> Set.remove, Set.add
+            | CellState.Flagged -> Set.add, Set.remove
+            | CellState.Hidden -> Set.remove, Set.remove
+        { game with
+            FlaggedLocations = game.FlaggedLocations |> flagAction index;
+            ExposedLocations = game.ExposedLocations |> exposeAction index;
+        }
+
+    let isGameOfState state game cell =
+        let cellState = getCellState cell.Coords.Index game
+        cellState  = state
+
+    let isCellHidden = isGameOfState CellState.Hidden
+    let isCellExposed = isGameOfState CellState.Exposed
+    let isCellFlagged = isGameOfState CellState.Flagged
+        
 
     let getNeighborCells cell game =
         cell.Coords
@@ -102,6 +127,8 @@ module GameFactory =
             Cells = cells;
             State = GameState.Start;
             GameSize = gameSize;
+            FlaggedLocations = Set.empty;
+            ExposedLocations = Set.empty;
             MineLocations = None;
             MineCount = mineCount;
             FlagCount = 0;

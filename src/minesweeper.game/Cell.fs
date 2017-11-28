@@ -5,7 +5,6 @@ open Coordinates
 type CellState = Hidden | Exposed | Flagged
 
 type Cell = {
-    State: CellState;
     Coords: Coordinate;
     IsMine: bool;
     SurroundingCount: int option;
@@ -14,11 +13,12 @@ type Cell = {
 
 module Cells =
     let create state coords isMine surroundingCount totalNeighbors =
-        { State = state; 
-          Coords = coords; 
-          IsMine = isMine; 
-          SurroundingCount = surroundingCount;
-          TotalNeighbors = totalNeighbors};
+        {
+            Coords = coords; 
+            IsMine = isMine; 
+            SurroundingCount = surroundingCount;
+            TotalNeighbors = totalNeighbors
+        };
         
     let private getSurroundingCount mineLocations cell =
         cell.Coords
@@ -29,9 +29,6 @@ module Cells =
     let withSurroundingCount mineLocations cell =
         { cell with SurroundingCount = Some (getSurroundingCount mineLocations cell) }
     
-    let isHidden c = c.State = Hidden
-    let isExposed c = c.State = Exposed
-    let isFlagged c = c.State = Flagged
     let isMine c = c.IsMine
     let isNotMine c = not c.IsMine
 
@@ -49,10 +46,11 @@ module CellFactory =
             }
         let totalNeighbors = coords |> Coordinates.getValidSurroundingIndexes |> Seq.length
 
-        { State = Hidden;
+        {
             Coords = coords;
             IsMine = false;
             SurroundingCount = None;
-            TotalNeighbors = totalNeighbors; }
+            TotalNeighbors = totalNeighbors; 
+        }
     
 

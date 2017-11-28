@@ -94,9 +94,9 @@ module Solution =
 
     let ofGame (game:Game) =
         let getSolutionCell (c:Cell) = 
-            match c.State with
-            | CellState.Hidden -> (c.Coords.Index, Hidden { Coords = c.Coords; TotalNeighbors = c.TotalNeighbors;
-            })
+            let cellState = Game.getCellState c.Coords.Index game
+            match cellState with
+            | CellState.Hidden -> (c.Coords.Index, Hidden { Coords = c.Coords; TotalNeighbors = c.TotalNeighbors; })
             | CellState.Exposed -> (c.Coords.Index, Exposed { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
             | CellState.Flagged -> (c.Coords.Index, Flagged { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
 
@@ -112,8 +112,9 @@ module Solution =
         solution.Game.Cells 
         |> Map.toSeq 
         |> Seq.map snd 
-        |> Seq.fold (fun acc cell -> 
-            match cell.State with 
+        |> Seq.fold (fun acc cell ->
+            let cellState = Game.getCellState cell.Coords.Index solution.Game
+            match cellState with 
             | CellState.Hidden -> { acc with Hidden = acc.Hidden + 1 }
             | CellState.Exposed -> { acc with Exposed = acc.Exposed + 1 }
             | CellState.Flagged -> { acc with Flagged = acc.Flagged + 1 }
