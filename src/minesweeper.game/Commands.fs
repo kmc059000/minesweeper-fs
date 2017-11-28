@@ -12,7 +12,7 @@ module Sweep =
         | Some 0, Hidden -> 
             game
             |> Game.getNeighborCells cell
-            |> Seq.filterMap Cells.isNotMine Cells.getIndex
+            |> Seq.filterMap (fun c -> Game.isCellNotMine c.Coords.Index game) Cells.getIndex
             |> List.ofSeq
         | _ -> []
 

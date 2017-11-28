@@ -26,52 +26,6 @@ type Game = {
 
 module Game =
     let getCell game index = game.Cells.[index]
-
-    let placeMines game lastSelectedIndex = 
-        let tryPlaceMine mineLocations cell =
-            { cell with IsMine = Set.contains cell.Coords.Index mineLocations }
-
-        let maxIndex = game.GameSize.Width * game.GameSize.Height
-    
-        let mineLocations =
-            Seq.initInfinite  (fun i -> game.Random.Next(maxIndex))
-            |> Seq.distinct
-            //omit the first cell
-            |> Seq.filter (fun c -> c <> lastSelectedIndex)
-            |> Seq.take game.MineCount
-            |> Set.ofSeq
-
-        let newCells = 
-            game.Cells
-            |> Map.toSeq
-            |> Seq.map snd
-            |> Seq.map (tryPlaceMine mineLocations)
-            |> Seq.map (Cells.withSurroundingCount mineLocations)
-            |> Seq.map (fun c -> (c.Coords.Index,c))
-            |> Map.ofSeq
-       
-        { game with Cells = newCells; MineLocations = Some mineLocations; State = Playing }
-
-    let tryPlaceMines lastSelectedIndex game =
-        match game.State with
-        | GameState.Start -> placeMines game lastSelectedIndex
-        | _ -> game
-
-    let isWin game = 
-        game.FlagCount = game.MineCount && game.ExposedCount + game.FlagCount = game.CellCount
-
-    let testWin game =
-        let isWin = isWin game
-        match isWin with
-        | true -> { game with State = Win }
-        | false -> game
-
-    let testLoss index game = 
-        let cell = game.Cells.[index]
-        match cell.IsMine with
-        | true -> { game with State = GameState.Dead; }
-        | false -> game
-
     let getCellState index game =
         let isExposed = game.ExposedLocations |> Set.contains index
         let isFlagged = game.FlaggedLocations |> Set.contains index
@@ -98,7 +52,52 @@ module Game =
     let isCellHidden = isGameOfState CellState.Hidden
     let isCellExposed = isGameOfState CellState.Exposed
     let isCellFlagged = isGameOfState CellState.Flagged
-        
+    let isCellMine index game = 
+        match game.MineLocations with
+        | Some s -> s |> Set.contains index
+        | None -> false
+    let isCellNotMine index game = not (isCellMine index game)
+
+    let placeMines game lastSelectedIndex = 
+        let maxIndex = game.GameSize.Width * game.GameSize.Height
+    
+        let mineLocations =
+            Seq.initInfinite  (fun i -> game.Random.Next(maxIndex))
+            |> Seq.distinct
+            //omit the first cell
+            |> Seq.filter (fun c -> c <> lastSelectedIndex)
+            |> Seq.take game.MineCount
+            |> Set.ofSeq
+
+        let newCells = 
+            game.Cells
+            |> Map.toSeq
+            |> Seq.map snd
+            |> Seq.map (Cells.withSurroundingCount mineLocations)
+            |> Seq.map (fun c -> (c.Coords.Index,c))
+            |> Map.ofSeq
+       
+        { game with Cells = newCells; MineLocations = Some mineLocations; State = Playing }
+
+    let tryPlaceMines lastSelectedIndex game =
+        match game.State with
+        | GameState.Start -> placeMines game lastSelectedIndex
+        | _ -> game
+
+    let isWin game = 
+        game.FlagCount = game.MineCount && game.ExposedCount + game.FlagCount = game.CellCount
+
+    let testWin game =
+        let isWin = isWin game
+        match isWin with
+        | true -> { game with State = Win }
+        | false -> game
+
+    let testLoss index game = 
+        let isMine = isCellMine index game
+        match isMine with
+        | true -> { game with State = GameState.Dead; }
+        | false -> game
 
     let getNeighborCells cell game =
         cell.Coords

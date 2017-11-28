@@ -24,13 +24,15 @@ let private highlightCursorNeighbor game cell str =
     | _ -> str
 
 let private hiddenCell game cell =
-    match debug, cell.IsMine with
+    let isMine = Game.isCellMine cell.Coords.Index game
+    match debug, isMine with
     | true,true -> mineText
     | true, false -> hiddenCellDebugText
     | false, _ -> hiddenCellText
 
 let private getExposedCharText game cell =
-    match cell.IsMine, cell.SurroundingCount with
+    let isMine = Game.isCellMine cell.Coords.Index game
+    match isMine, cell.SurroundingCount with
     | true, _ -> mineText
     | false, None
     | false, Some 0 -> emptyText
