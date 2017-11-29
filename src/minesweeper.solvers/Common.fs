@@ -4,8 +4,8 @@ open Coordinates
 open Cells
 open Games
 
-type HiddenCell = { Coords: Coordinate; Coords2: Coordinate2; TotalNeighbors: int; }
-type ExposedCell = { Coords: Coordinate; Coords2: Coordinate2; SurroundingCount: int; }
+type HiddenCell = { Coords: Coordinate2; TotalNeighbors: int; }
+type ExposedCell = { Coords: Coordinate2; SurroundingCount: int; }
 
 type VisibleCell = 
     | Hidden of HiddenCell
@@ -24,6 +24,15 @@ type Solution = {
     PerfectSweeps: int;
     ImperfectSweeps: int;
 }
+
+module SolutionCells =
+    let getXY gameSize c =
+        let c2 = 
+            match c with
+            | Hidden c -> c.Coords
+            | Exposed c -> c.Coords
+            | Flagged c -> c.Coords
+        Coordinates2.toXY c2 gameSize
 
 module Coordinate =
     //i wish i could find a way to write these 3 functions as the same generic function
@@ -50,7 +59,7 @@ module Coordinate =
     let getExposedCells = getCellsOfType getExposedCell
 
     let getNeighborsOfType typeMatcher solution coords =
-        Coordinates.getValidSurroundingIndexes coords
+        Coordinates2.getValidSurroundingIndexes solution.Game.GameSize coords
         |> Seq.map (fun idx -> solution.Cells.[idx])
         |> Seq.choose typeMatcher
                 
@@ -97,9 +106,9 @@ module Solution =
             let cellState = Game.getCellStateFromCell c game
             let index = Cells.getIndex c
             match cellState with
-            | CellState.Hidden -> (index, Hidden { Coords = c.Coords; Coords2 = c.Coords2; TotalNeighbors = c.TotalNeighbors; })
-            | CellState.Exposed -> (index, Exposed { Coords = c.Coords; Coords2 = c.Coords2; SurroundingCount = c.SurroundingCount.Value; })
-            | CellState.Flagged -> (index, Flagged { Coords = c.Coords; Coords2 = c.Coords2; SurroundingCount = c.SurroundingCount.Value; })
+            | CellState.Hidden -> (index, Hidden { Coords = c.Coords2; TotalNeighbors = c.TotalNeighbors; })
+            | CellState.Exposed -> (index, Exposed { Coords = c.Coords2; SurroundingCount = c.SurroundingCount.Value; })
+            | CellState.Flagged -> (index, Flagged { Coords = c.Coords2; SurroundingCount = c.SurroundingCount.Value; })
 
         let cells = game.Cells |> Map.toSeq |> Seq.map snd |> Seq.map getSolutionCell |> Map.ofSeq
         let state = 
@@ -130,15 +139,18 @@ module Game =
         match cells with
         | [] -> game
         | x::xs ->
+            let x', y', _ = SolutionCells.getXY game.GameSize (Hidden x)
             game
-            |> sweep x.Coords.X x.Coords.Y
+            |> sweep x' y'
             |> sweepAll xs
         
     let rec flagAll (cells:HiddenCell list) game =
         match cells with
         | [] -> game
         | x::xs ->
-            game |> flag x.Coords.X x.Coords.Y
+            let x', y', _ = SolutionCells.getXY game.GameSize (Hidden x)
+            game 
+            |> flag x' y'
             |> flagAll xs
 
     let getRandom (rand:System.Random) xs =

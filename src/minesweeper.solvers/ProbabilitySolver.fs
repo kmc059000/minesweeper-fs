@@ -40,7 +40,7 @@ module private ProbabilityCalculator =
     //otherwise, this cell's probability is the number of remaining mines / number of hidden cells
     let getCellProbability solution solutionProbability (cell:HiddenCell) =
         let probabilities = 
-            cell.Coords 
+            cell.Coords
             |> Coordinate.getExposedNeighbors solution 
             |> Seq.map (getMineProbabilityOfCell solution)
             |> Seq.toList
