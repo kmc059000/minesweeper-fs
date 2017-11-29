@@ -8,7 +8,7 @@ open FSharpUtils
 type GameState = Start | Playing | Win | Dead | Quit
 
 type Game = {
-    CursorPosition: Coordinate2;
+    CursorPosition: Coordinate;
     Cells: Map<int, Cell>;
     State: GameState;
     GameSize: GameSize;
@@ -110,12 +110,12 @@ module Game =
 
     let getNeighborCells cell game =
         cell.Coords
-        |> Coordinates2.getValidSurroundingIndexes game.GameSize
+        |> Coordinates.getValidSurroundingIndexes game.GameSize
         |> Seq.map (getCell game)
 
     let filterNeighborCells cell predicate game =
         cell.Coords
-        |> Coordinates2.getValidSurroundingIndexes game.GameSize
+        |> Coordinates.getValidSurroundingIndexes game.GameSize
         |> Seq.map (getCell game)
         |> Seq.filter predicate
 
@@ -128,7 +128,7 @@ module GameFactory =
         let cells = 
             [0..((width * height) - 1)] 
             |> Seq.map (CellFactory.initCell gameSize)
-            |> Seq.map (fun c -> (Coordinates2.toIndex c.Coords,c))
+            |> Seq.map (fun c -> (Coordinates.toIndex c.Coords,c))
             |> Map.ofSeq
         {
             CursorPosition = Index 0;

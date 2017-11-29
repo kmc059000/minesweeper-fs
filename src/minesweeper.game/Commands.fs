@@ -12,7 +12,7 @@ module Sweep =
         | Some 0, Hidden -> 
             game
             |> Game.getNeighborCells cell
-            |> Seq.filterMap (fun c -> Game.isCellNotMine (Coordinates2.toIndex c.Coords) game) Cells.getIndex
+            |> Seq.filterMap (fun c -> Game.isCellNotMine (Coordinates.toIndex c.Coords) game) Cells.getIndex
             |> List.ofSeq
         | _ -> []
 
@@ -38,7 +38,7 @@ module Sweep =
 
 
     let sweep x y game = 
-        let index = Coordinates2.fromXY x y game.GameSize |> Coordinates2.toIndex
+        let index = Coordinates.fromXY x y game.GameSize |> Coordinates.toIndex
         game 
         |> Game.tryPlaceMines index
         |> sweepCells [index]
@@ -52,12 +52,12 @@ module Sweep =
             match cells with
             | [] -> game'
             | x::xs ->
-                let (x',y',_) = Coordinates2.toXY x.Coords game.GameSize
+                let (x',y',_) = Coordinates.toXY x.Coords game.GameSize
                 game'
                 |> sweep x' y'
                 |> loop xs
 
-        let index = Coordinates2.fromXY x y game.GameSize |> Coordinates2.toIndex
+        let index = Coordinates.fromXY x y game.GameSize |> Coordinates.toIndex
         let cell = Game.getCell game index
         let mineCount = cell.SurroundingCount |> Option.defaultValue 0
 
@@ -78,7 +78,7 @@ module Sweep =
         
 module Flag =
     let flag x y game = 
-        let index = Coordinates2.fromXY x y game.GameSize |> Coordinates2.toIndex
+        let index = Coordinates.fromXY x y game.GameSize |> Coordinates.toIndex
         let cellState = Game.getCellState index game
         let flag, flagDiff = 
             match cellState with
@@ -92,8 +92,8 @@ module Flag =
 
 module Move =
     let move x y game =
-        let newPosition = Coordinates2.getOffsetIndex game.GameSize game.CursorPosition (x, y)
-        match (Coordinates2.isValid game.GameSize newPosition) with
+        let newPosition = Coordinates.getOffsetIndex game.GameSize game.CursorPosition (x, y)
+        match (Coordinates.isValid game.GameSize newPosition) with
         | true -> { game with CursorPosition = newPosition; }
         | false -> game
             

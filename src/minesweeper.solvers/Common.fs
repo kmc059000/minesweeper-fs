@@ -4,8 +4,8 @@ open Coordinates
 open Cells
 open Games
 
-type HiddenCell = { Coords: Coordinate2; TotalNeighbors: int; }
-type ExposedCell = { Coords: Coordinate2; SurroundingCount: int; }
+type HiddenCell = { Coords: Coordinate; TotalNeighbors: int; }
+type ExposedCell = { Coords: Coordinate; SurroundingCount: int; }
 
 type VisibleCell = 
     | Hidden of HiddenCell
@@ -32,7 +32,7 @@ module SolutionCells =
             | Hidden c -> c.Coords
             | Exposed c -> c.Coords
             | Flagged c -> c.Coords
-        Coordinates2.toXY c2 gameSize
+        Coordinates.toXY c2 gameSize
 
 module Coordinate =
     //i wish i could find a way to write these 3 functions as the same generic function
@@ -59,7 +59,7 @@ module Coordinate =
     let getExposedCells = getCellsOfType getExposedCell
 
     let getNeighborsOfType typeMatcher solution coords =
-        Coordinates2.getValidSurroundingIndexes solution.Game.GameSize coords
+        Coordinates.getValidSurroundingIndexes solution.Game.GameSize coords
         |> Seq.map (fun idx -> solution.Cells.[idx])
         |> Seq.choose typeMatcher
                 

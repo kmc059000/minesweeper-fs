@@ -2,11 +2,11 @@
 
 type GameSize = { Width: int; Height: int; }
     
-type Coordinate2 =
+type Coordinate =
     | Index of int
     | Coord of int*int*GameSize
 
-module Coordinates2 =
+module Coordinates =
     let toIndex c2 =
         match c2 with
         | Index i -> i

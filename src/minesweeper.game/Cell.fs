@@ -5,7 +5,7 @@ open Coordinates
 type CellState = Hidden | Exposed | Flagged
 
 type Cell = {
-    Coords: Coordinate2;
+    Coords: Coordinate;
     SurroundingCount: int option;
     TotalNeighbors: int;
 };
@@ -13,18 +13,18 @@ type Cell = {
 module Cells =        
     let private getSurroundingCount gameSize mineLocations cell =
         cell.Coords
-        |> Coordinates2.getValidSurroundingIndexes gameSize
+        |> Coordinates.getValidSurroundingIndexes gameSize
         |> Set.intersect mineLocations
         |> Seq.length
 
     let withSurroundingCount gameSize mineLocations cell =
         { cell with SurroundingCount = Some (getSurroundingCount gameSize mineLocations cell) }
 
-    let getIndex c = Coordinates2.toIndex c.Coords
+    let getIndex c = Coordinates.toIndex c.Coords
 
 module CellFactory =
     let initCell gameSize index =
-        let totalNeighbors = Index index |> Coordinates2.getValidSurroundingIndexes gameSize |> Seq.length
+        let totalNeighbors = Index index |> Coordinates.getValidSurroundingIndexes gameSize |> Seq.length
 
         {
             Coords = (Index index);

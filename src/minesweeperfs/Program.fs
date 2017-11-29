@@ -63,7 +63,7 @@ let printGame previousDisplay game =
     newDisplay
 
 let getAction game key =
-    let x, y, _ = Coordinates2.toXY game.CursorPosition game.GameSize 
+    let x, y, _ = Coordinates.toXY game.CursorPosition game.GameSize 
     match key with
     | ConsoleKey.LeftArrow -> moveLeft
     | ConsoleKey.RightArrow -> moveRight
