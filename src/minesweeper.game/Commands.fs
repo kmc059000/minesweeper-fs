@@ -12,7 +12,7 @@ module Sweep =
         | Some 0, Hidden -> 
             game
             |> Game.getNeighborCells cell
-            |> Seq.filterMap (fun c -> Game.isCellNotMine (Coordinates2.toIndex c.Coords2) game) Cells.getIndex
+            |> Seq.filterMap (fun c -> Game.isCellNotMine (Coordinates2.toIndex c.Coords) game) Cells.getIndex
             |> List.ofSeq
         | _ -> []
 
@@ -52,7 +52,7 @@ module Sweep =
             match cells with
             | [] -> game'
             | x::xs ->
-                let (x',y',_) = Coordinates2.toXY x.Coords2 game.GameSize
+                let (x',y',_) = Coordinates2.toXY x.Coords game.GameSize
                 game'
                 |> sweep x' y'
                 |> loop xs

@@ -110,12 +110,12 @@ module Game =
         | false -> game
 
     let getNeighborCells cell game =
-        cell.Coords2
+        cell.Coords
         |> Coordinates2.getValidSurroundingIndexes game.GameSize
         |> Seq.map (getCell game)
 
     let filterNeighborCells cell predicate game =
-        cell.Coords2
+        cell.Coords
         |> Coordinates2.getValidSurroundingIndexes game.GameSize
         |> Seq.map (getCell game)
         |> Seq.filter predicate
@@ -129,7 +129,7 @@ module GameFactory =
         let cells = 
             [0..((width * height) - 1)] 
             |> Seq.map (CellFactory.initCell gameSize)
-            |> Seq.map (fun c -> (Coordinates2.toIndex c.Coords2,c))
+            |> Seq.map (fun c -> (Coordinates2.toIndex c.Coords,c))
             |> Map.ofSeq
         {
             CursorPosition = { X= 0; Y = 0; Index = 0; GameSize = gameSize; }

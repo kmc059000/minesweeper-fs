@@ -106,9 +106,9 @@ module Solution =
             let cellState = Game.getCellStateFromCell c game
             let index = Cells.getIndex c
             match cellState with
-            | CellState.Hidden -> (index, Hidden { Coords = c.Coords2; TotalNeighbors = c.TotalNeighbors; })
-            | CellState.Exposed -> (index, Exposed { Coords = c.Coords2; SurroundingCount = c.SurroundingCount.Value; })
-            | CellState.Flagged -> (index, Flagged { Coords = c.Coords2; SurroundingCount = c.SurroundingCount.Value; })
+            | CellState.Hidden -> (index, Hidden { Coords = c.Coords; TotalNeighbors = c.TotalNeighbors; })
+            | CellState.Exposed -> (index, Exposed { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
+            | CellState.Flagged -> (index, Flagged { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
 
         let cells = game.Cells |> Map.toSeq |> Seq.map snd |> Seq.map getSolutionCell |> Map.ofSeq
         let state = 
