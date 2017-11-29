@@ -8,8 +8,7 @@ open FSharpUtils
 type GameState = Start | Playing | Win | Dead | Quit
 
 type Game = {
-    CursorPosition: Coordinate;
-    CursorPosition2: Coordinate2;
+    CursorPosition: Coordinate2;
     Cells: Map<int, Cell>;
     State: GameState;
     GameSize: GameSize;
@@ -132,8 +131,7 @@ module GameFactory =
             |> Seq.map (fun c -> (Coordinates2.toIndex c.Coords,c))
             |> Map.ofSeq
         {
-            CursorPosition = { X= 0; Y = 0; Index = 0; GameSize = gameSize; }
-            CursorPosition2 = Index 0;
+            CursorPosition = Index 0;
             Cells = cells;
             State = GameState.Start;
             GameSize = gameSize;

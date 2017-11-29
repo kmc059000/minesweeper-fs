@@ -92,8 +92,8 @@ module Flag =
 
 module Move =
     let move x y game =
-        let newPosition = Coordinates.getOffsetIndex game.CursorPosition (x, y)
-        match (Coordinates.isValid newPosition) with
+        let newPosition = Coordinates2.getOffsetIndex game.GameSize game.CursorPosition (x, y)
+        match (Coordinates2.isValid game.GameSize newPosition) with
         | true -> { game with CursorPosition = newPosition; }
         | false -> game
             

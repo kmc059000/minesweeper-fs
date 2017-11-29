@@ -10,6 +10,7 @@ open Commands.Quit
 
 open ConsolePrinting
 open MinesweeperUI
+open Coordinates
 
 //debug <- true
 
@@ -62,8 +63,7 @@ let printGame previousDisplay game =
     newDisplay
 
 let getAction game key =
-    let x = game.CursorPosition.X
-    let y = game.CursorPosition.Y
+    let x, y, _ = Coordinates2.toXY game.CursorPosition game.GameSize 
     match key with
     | ConsoleKey.LeftArrow -> moveLeft
     | ConsoleKey.RightArrow -> moveRight
