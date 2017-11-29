@@ -13,21 +13,21 @@ type Cell = {
 module Cells =        
     let private getSurroundingCount gameSize mineLocations cell =
         cell.Coords
-        |> Coordinates.getValidSurroundingIndexes gameSize
+        |> Coordinates2.getValidSurroundingIndexes gameSize
         |> Set.intersect mineLocations
         |> Seq.length
 
     let withSurroundingCount gameSize mineLocations cell =
         { cell with SurroundingCount = Some (getSurroundingCount gameSize mineLocations cell) }
 
-    let getIndex c = Coordinates.toIndex c.Coords
+    let getIndex c = c.Coords
 
 module CellFactory =
     let initCell gameSize index =
-        let totalNeighbors = Index index |> Coordinates.getValidSurroundingIndexes gameSize |> Seq.length
+        let totalNeighbors = index |> Coordinates2.getValidSurroundingIndexes gameSize |> Seq.length
 
         {
-            Coords = (Index index);
+            Coords = index;
             SurroundingCount = None;
             TotalNeighbors = totalNeighbors; 
         }

@@ -2,29 +2,18 @@
 
 type GameSize = { Width: int; Height: int; }
     
-type Coordinate =
-    | Index of int
-    | Coord of int*int*GameSize
+type Coordinate = int
 
-module Coordinates =
-    let toIndex c2 =
-        match c2 with
-        | Index i -> i
-        | Coord (x,y,gameSize) -> x + y * gameSize.Width
+module Coordinates2 =
+    let toIndex x y gameSize = x + y * gameSize.Width
 
-    let toXY c2 gameSize =
-        match c2 with
-        | Index i -> i / gameSize.Width, i % gameSize.Width, gameSize
-        | Coord (x,y,gameSize) -> (x,y,gameSize)
+    let toXY i gameSize =
+        i / gameSize.Width, i % gameSize.Width, gameSize
 
     let private surroundingOffsets = 
         [(-1, -1);   (0, -1);  (1, -1);
          (-1,  0); (*(0, 0);*) (1, 0);
          (-1,  1);   (0, 1);   (1, 1);]
-
-    let fromIndex index = Index index
-    let fromXY x y gameSize = Coord (x,y,gameSize)
-
     
     let isValid gameSize coords =
         let inRange max x = x >= 0 && x < max
@@ -38,7 +27,7 @@ module Coordinates =
         let (dx, dy) = offset
         let x = cx + dx
         let y = cy + dy
-        fromXY x y gameSize
+        toIndex x y gameSize
 
     let getValidSurroundingCoordinates gameSize coords =
         surroundingOffsets
@@ -49,7 +38,6 @@ module Coordinates =
     let getValidSurroundingIndexes gameSize coords =
         coords 
         |> getValidSurroundingCoordinates gameSize
-        |> Set.map toIndex
 
     let isNeighbor gameSize c1 c2 = 
         c1

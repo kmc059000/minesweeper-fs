@@ -32,7 +32,7 @@ module SolutionCells =
             | Hidden c -> c.Coords
             | Exposed c -> c.Coords
             | Flagged c -> c.Coords
-        Coordinates.toXY c2 gameSize
+        Coordinates2.toXY c2 gameSize
 
 module Coordinate =
     //i wish i could find a way to write these 3 functions as the same generic function
@@ -59,7 +59,7 @@ module Coordinate =
     let getExposedCells = getCellsOfType getExposedCell
 
     let getNeighborsOfType typeMatcher solution coords =
-        Coordinates.getValidSurroundingIndexes solution.Game.GameSize coords
+        Coordinates2.getValidSurroundingIndexes solution.Game.GameSize coords
         |> Seq.map (fun idx -> solution.Cells.[idx])
         |> Seq.choose typeMatcher
                 

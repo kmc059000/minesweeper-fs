@@ -18,7 +18,7 @@ let private hiddenCellText = ConsoleString.create "·" ConsoleColor.White Consol
 let private hiddenCellDebugText = ConsoleString.create "H" ConsoleColor.White ConsoleColor.Black
 
 let private highlightCursorNeighbor game cell str =
-    let isNeighbor = Coordinates.isNeighbor game.GameSize game.CursorPosition cell.Coords
+    let isNeighbor = Coordinates2.isNeighbor game.GameSize game.CursorPosition cell.Coords
     match isNeighbor with
     | true -> { str with Background = ConsoleColor.DarkGray }
     | _ -> str
