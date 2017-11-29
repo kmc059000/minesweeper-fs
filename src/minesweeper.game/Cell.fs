@@ -24,15 +24,7 @@ module Cells =
 
 module CellFactory =
     let initCell gameSize index =
-        let coords = 
-            {
-                Index = index
-                X = index % gameSize.Width
-                Y = index / gameSize.Width
-                GameSize = gameSize
-            
-            }
-        let totalNeighbors = coords |> Coordinates.getValidSurroundingIndexes |> Seq.length
+        let totalNeighbors = Index index |> Coordinates2.getValidSurroundingIndexes gameSize |> Seq.length
 
         {
             Coords = (Index index);

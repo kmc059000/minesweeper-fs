@@ -38,7 +38,7 @@ module Sweep =
 
 
     let sweep x y game = 
-        let index = Coordinates.getArrayIndex x y game.GameSize
+        let index = Coordinates2.fromXY x y game.GameSize |> Coordinates2.toIndex
         game 
         |> Game.tryPlaceMines index
         |> sweepCells [index]
@@ -57,7 +57,7 @@ module Sweep =
                 |> sweep x' y'
                 |> loop xs
 
-        let index = Coordinates.getArrayIndex x y game.GameSize
+        let index = Coordinates2.fromXY x y game.GameSize |> Coordinates2.toIndex
         let cell = Game.getCell game index
         let mineCount = cell.SurroundingCount |> Option.defaultValue 0
 
@@ -78,7 +78,7 @@ module Sweep =
         
 module Flag =
     let flag x y game = 
-        let index = Coordinates.getArrayIndex x y game.GameSize
+        let index = Coordinates2.fromXY x y game.GameSize |> Coordinates2.toIndex
         let cellState = Game.getCellState index game
         let flag, flagDiff = 
             match cellState with
