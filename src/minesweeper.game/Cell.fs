@@ -6,28 +6,22 @@ type CellState = Hidden | Exposed | Flagged
 
 type Cell = {
     Coords: Coordinate;
+    Coords2: Coordinate2;
     SurroundingCount: int option;
     TotalNeighbors: int;
 };
 
-module Cells =
-    let create coords surroundingCount totalNeighbors =
-        {
-            Coords = coords; 
-            SurroundingCount = surroundingCount;
-            TotalNeighbors = totalNeighbors
-        };
-        
-    let private getSurroundingCount mineLocations cell =
-        cell.Coords
-        |> Coordinates.getValidSurroundingIndexes
+module Cells =        
+    let private getSurroundingCount gameSize mineLocations cell =
+        cell.Coords2
+        |> Coordinates2.getValidSurroundingIndexes gameSize
         |> Set.intersect mineLocations
         |> Seq.length
 
-    let withSurroundingCount mineLocations cell =
-        { cell with SurroundingCount = Some (getSurroundingCount mineLocations cell) }
+    let withSurroundingCount gameSize mineLocations cell =
+        { cell with SurroundingCount = Some (getSurroundingCount gameSize mineLocations cell) }
 
-    let getIndex c = c.Coords.Index
+    let getIndex c = Coordinates2.toIndex c.Coords2
 
 module CellFactory =
     let initCell gameSize index =
@@ -43,6 +37,7 @@ module CellFactory =
 
         {
             Coords = coords;
+            Coords2 = (Index index);
             SurroundingCount = None;
             TotalNeighbors = totalNeighbors; 
         }

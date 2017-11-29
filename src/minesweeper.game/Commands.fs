@@ -7,22 +7,22 @@ open FSharpUtils
 
 module Sweep =
     let private getNeighborsToSweep cell game =
-        let cellState = Game.getCellState cell.Coords.Index game
+        let cellState = Game.getCellStateFromCell cell game
         match cell.SurroundingCount, cellState with
         | Some 0, Hidden -> 
             game
             |> Game.getNeighborCells cell
-            |> Seq.filterMap (fun c -> Game.isCellNotMine c.Coords.Index game) Cells.getIndex
+            |> Seq.filterMap (fun c -> Game.isCellNotMine (Coordinates2.toIndex c.Coords2) game) Cells.getIndex
             |> List.ofSeq
         | _ -> []
 
     let trySetExposed (cell:Cell) game =
-        let cellState = Game.getCellState cell.Coords.Index game
+        let cellState = Game.getCellStateFromCell cell game
         match cellState with
         | CellState.Exposed -> game
         | _ -> 
             game 
-            |> Game.setCellState cell.Coords.Index Exposed
+            |> Game.setCellStateForCell cell Exposed
             |> Game.incrementExposedCount
 
     //this will auto-sweep the surrounding cells if the sweeped cell has 0 surrounding mines.
@@ -52,8 +52,9 @@ module Sweep =
             match cells with
             | [] -> game'
             | x::xs ->
-                game' 
-                |> sweep x.Coords.X x.Coords.Y
+                let (x',y',_) = Coordinates2.toXY x.Coords2 game.GameSize
+                game'
+                |> sweep x' y'
                 |> loop xs
 
         let index = Coordinates.getArrayIndex x y game.GameSize

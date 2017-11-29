@@ -18,20 +18,20 @@ let private hiddenCellText = ConsoleString.create "·" ConsoleColor.White Consol
 let private hiddenCellDebugText = ConsoleString.create "H" ConsoleColor.White ConsoleColor.Black
 
 let private highlightCursorNeighbor game cell str =
-    let isNeighbor = Coordinates.isNeighbor game.CursorPosition cell.Coords
+    let isNeighbor = Coordinates2.isNeighbor game.GameSize game.CursorPosition2 cell.Coords2
     match isNeighbor with
     | true -> { str with Background = ConsoleColor.DarkGray }
     | _ -> str
 
 let private hiddenCell game cell =
-    let isMine = Game.isCellMine cell.Coords.Index game
+    let isMine = Game.isCellMineFromCell cell game
     match debug, isMine with
     | true,true -> mineText
     | true, false -> hiddenCellDebugText
     | false, _ -> hiddenCellText
 
 let private getExposedCharText game cell =
-    let isMine = Game.isCellMine cell.Coords.Index game
+    let isMine = Game.isCellMineFromCell cell game
     match isMine, cell.SurroundingCount with
     | true, _ -> mineText
     | false, None
@@ -48,10 +48,10 @@ let private getExposedCharText game cell =
             
 let private getCellChar game cell =
     let exposedChar = lazy (getExposedCharText game cell)
-    match game.CursorPosition = cell.Coords with
+    match game.CursorPosition2 = cell.Coords2 with
     | true -> cursorText
     | false ->
-        let cellState = Game.getCellState cell.Coords.Index game
+        let cellState = Game.getCellStateFromCell cell game
         match (cellState, game.State) with
         | (_, Dead) 
         | (Exposed, _) ->  exposedChar.Value
@@ -72,7 +72,7 @@ let private getRowsText game =
     game.Cells
         |> Map.toList
         |> List.map snd
-        |> List.sortBy (fun c -> c.Coords.Index)
+        |> List.sortBy Cells.getIndex
         |> List.chunkBySize game.GameSize.Width
         |> List.map (getRowText game)
 

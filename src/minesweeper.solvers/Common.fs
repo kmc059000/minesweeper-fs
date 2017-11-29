@@ -4,8 +4,8 @@ open Coordinates
 open Cells
 open Games
 
-type HiddenCell = { Coords: Coordinate; TotalNeighbors: int; }
-type ExposedCell = { Coords: Coordinate; SurroundingCount: int; }
+type HiddenCell = { Coords: Coordinate; Coords2: Coordinate2; TotalNeighbors: int; }
+type ExposedCell = { Coords: Coordinate; Coords2: Coordinate2; SurroundingCount: int; }
 
 type VisibleCell = 
     | Hidden of HiddenCell
@@ -94,11 +94,12 @@ module Solution =
 
     let ofGame (game:Game) =
         let getSolutionCell (c:Cell) = 
-            let cellState = Game.getCellState c.Coords.Index game
+            let cellState = Game.getCellStateFromCell c game
+            let index = Cells.getIndex c
             match cellState with
-            | CellState.Hidden -> (c.Coords.Index, Hidden { Coords = c.Coords; TotalNeighbors = c.TotalNeighbors; })
-            | CellState.Exposed -> (c.Coords.Index, Exposed { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
-            | CellState.Flagged -> (c.Coords.Index, Flagged { Coords = c.Coords; SurroundingCount = c.SurroundingCount.Value; })
+            | CellState.Hidden -> (index, Hidden { Coords = c.Coords; Coords2 = c.Coords2; TotalNeighbors = c.TotalNeighbors; })
+            | CellState.Exposed -> (index, Exposed { Coords = c.Coords; Coords2 = c.Coords2; SurroundingCount = c.SurroundingCount.Value; })
+            | CellState.Flagged -> (index, Flagged { Coords = c.Coords; Coords2 = c.Coords2; SurroundingCount = c.SurroundingCount.Value; })
 
         let cells = game.Cells |> Map.toSeq |> Seq.map snd |> Seq.map getSolutionCell |> Map.ofSeq
         let state = 
@@ -113,7 +114,7 @@ module Solution =
         |> Map.toSeq 
         |> Seq.map snd 
         |> Seq.fold (fun acc cell ->
-            let cellState = Game.getCellState cell.Coords.Index solution.Game
+            let cellState = Game.getCellStateFromCell cell solution.Game
             match cellState with 
             | CellState.Hidden -> { acc with Hidden = acc.Hidden + 1 }
             | CellState.Exposed -> { acc with Exposed = acc.Exposed + 1 }

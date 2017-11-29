@@ -9,6 +9,7 @@ type GameState = Start | Playing | Win | Dead | Quit
 
 type Game = {
     CursorPosition: Coordinate;
+    CursorPosition2: Coordinate2;
     Cells: Map<int, Cell>;
     State: GameState;
     GameSize: GameSize;
@@ -34,6 +35,9 @@ module Game =
         | _, true -> CellState.Flagged
         | _ -> CellState.Hidden
 
+    let getCellStateFromCell cell game =
+        getCellState (Cells.getIndex cell) game
+
     let setCellState index state game =
         let (flagAction, exposeAction) = 
             match state with
@@ -45,8 +49,12 @@ module Game =
             ExposedLocations = game.ExposedLocations |> exposeAction index;
         }
 
+    let setCellStateForCell cell state game =
+        setCellState (Cells.getIndex cell) state game
+
     let isGameOfState state game cell =
-        let cellState = getCellState cell.Coords.Index game
+        let index = Cells.getIndex cell
+        let cellState = getCellState index game
         cellState  = state
 
     let isCellHidden = isGameOfState CellState.Hidden
@@ -56,7 +64,9 @@ module Game =
         match game.MineLocations with
         | Some s -> s |> Set.contains index
         | None -> false
+    let isCellMineFromCell cell game = isCellMine (Cells.getIndex cell) game
     let isCellNotMine index game = not (isCellMine index game)
+    let isCellNotMineFromCell cell game = isCellNotMine (Cells.getIndex cell) game
 
     let placeMines game lastSelectedIndex = 
         let maxIndex = game.GameSize.Width * game.GameSize.Height
@@ -73,8 +83,8 @@ module Game =
             game.Cells
             |> Map.toSeq
             |> Seq.map snd
-            |> Seq.map (Cells.withSurroundingCount mineLocations)
-            |> Seq.map (fun c -> (c.Coords.Index,c))
+            |> Seq.map (Cells.withSurroundingCount game.GameSize mineLocations)
+            |> Seq.map (fun c -> (Cells.getIndex c,c))
             |> Map.ofSeq
        
         { game with Cells = newCells; MineLocations = Some mineLocations; State = Playing }
@@ -100,13 +110,13 @@ module Game =
         | false -> game
 
     let getNeighborCells cell game =
-        cell.Coords
-        |> Coordinates.getValidSurroundingIndexes
+        cell.Coords2
+        |> Coordinates2.getValidSurroundingIndexes game.GameSize
         |> Seq.map (getCell game)
 
     let filterNeighborCells cell predicate game =
-        cell.Coords
-        |> Coordinates.getValidSurroundingIndexes
+        cell.Coords2
+        |> Coordinates2.getValidSurroundingIndexes game.GameSize
         |> Seq.map (getCell game)
         |> Seq.filter predicate
 
@@ -119,10 +129,11 @@ module GameFactory =
         let cells = 
             [0..((width * height) - 1)] 
             |> Seq.map (CellFactory.initCell gameSize)
-            |> Seq.map (fun c -> (c.Coords.Index,c))
+            |> Seq.map (fun c -> (Coordinates2.toIndex c.Coords2,c))
             |> Map.ofSeq
         {
             CursorPosition = { X= 0; Y = 0; Index = 0; GameSize = gameSize; }
+            CursorPosition2 = Index 0;
             Cells = cells;
             State = GameState.Start;
             GameSize = gameSize;
